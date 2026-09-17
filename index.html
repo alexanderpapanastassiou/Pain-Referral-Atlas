@@ -1,0 +1,1634 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="Interactive whole-body atlas of somatic referred pain: 117 structures mapped onto 79 body zones, each with an evidence grade, on a rotatable 3-D figure.">
+<meta name="color-scheme" content="light dark">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧍</text></svg>">
+</head>
+<body>
+<title>Referred Pain Atlas</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,500;8..60,600;8..60,700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+
+<style>
+:root{
+  --paper:#F1F3EF;
+  --surface:#FFFFFF;
+  --surface-2:#E9ECE5;
+  --surface-3:#DFE4DA;
+  --ink:#1B231F;
+  --ink-soft:#4B564F;
+  --ink-faint:#7C877E;
+  --line:#D8DDD3;
+  --line-strong:#BCC4B7;
+  --accent:#1F6F63;
+  --accent-ink:#0E3F38;
+  --accent-soft:#DCEAE5;
+
+  /* heat ramp — single warm hue, ordinal, validated light-mode */
+  --heat-1:#E89272;
+  --heat-2:#D85B3F;
+  --heat-3:#A31C14;
+  --heat-0:#E4E8E0;      /* no referral */
+  --heat-1-ink:#5E2B18;
+  --heat-3-ink:#FFFFFF;
+
+  --shadow:0 1px 2px rgba(20,30,24,.07),0 8px 24px -10px rgba(20,30,24,.22);
+  --radius:10px;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --paper:#121915; --surface:#1A2420; --surface-2:#212C27; --surface-3:#293530;
+    --ink:#E7ECE6; --ink-soft:#AAB6AC; --ink-faint:#79877D;
+    --line:#2B3630; --line-strong:#3C4A43;
+    --accent:#57C4AC; --accent-ink:#BEEBE0; --accent-soft:#1E3833;
+    --heat-1:#93412C; --heat-2:#CB5D40; --heat-3:#F49877;
+    --heat-0:#232E29;
+    --heat-1-ink:#F3D6CA; --heat-3-ink:#2A1008;
+    --shadow:0 1px 2px rgba(0,0,0,.35),0 8px 24px -10px rgba(0,0,0,.5);
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#121915; --surface:#1A2420; --surface-2:#212C27; --surface-3:#293530;
+  --ink:#E7ECE6; --ink-soft:#AAB6AC; --ink-faint:#79877D;
+  --line:#2B3630; --line-strong:#3C4A43;
+  --accent:#57C4AC; --accent-ink:#BEEBE0; --accent-soft:#1E3833;
+  --heat-1:#93412C; --heat-2:#CB5D40; --heat-3:#F49877;
+  --heat-0:#232E29;
+  --heat-1-ink:#F3D6CA; --heat-3-ink:#2A1008;
+  --shadow:0 1px 2px rgba(0,0,0,.35),0 8px 24px -10px rgba(0,0,0,.5);
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0;background:var(--paper);color:var(--ink);
+  font-family:"IBM Plex Sans",ui-sans-serif,system-ui,sans-serif;
+  font-size:15px;line-height:1.55;
+}
+h1,h2,h3{font-family:"Source Serif 4",ui-serif,Georgia,serif;font-weight:600;margin:0;text-wrap:balance}
+.mono{font-family:"IBM Plex Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums}
+::selection{background:var(--accent-soft);color:var(--accent-ink)}
+:is(a,button,input,select,summary,[tabindex]):focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
+button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
+
+/* ---------- header ---------- */
+header.top{position:sticky;top:0;z-index:60;background:color-mix(in srgb,var(--paper) 93%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.top-in{max-width:1400px;margin:0 auto;padding:13px 22px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.brand{display:flex;align-items:baseline;gap:10px;margin-right:auto}
+.brand .mark{font-family:"IBM Plex Mono";font-weight:600;font-size:11px;letter-spacing:.08em;color:var(--accent-ink);background:var(--accent-soft);border-radius:5px;padding:2px 7px}
+.brand h1{font-size:18px}
+.top-actions{display:flex;gap:6px;align-items:center}
+.btn{font-size:12.5px;font-weight:500;padding:7px 13px;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--ink-soft)}
+.btn:hover{background:var(--surface-2);color:var(--ink)}
+.btn.on{background:var(--accent-soft);border-color:var(--accent);color:var(--accent-ink);font-weight:600}
+
+/* ---------- layout ---------- */
+main{max-width:1400px;margin:0 auto;padding:22px 22px 70px}
+.lede{max-width:70ch;color:var(--ink-soft);font-size:14.5px;margin:0 0 20px}
+.lede strong{color:var(--ink);font-weight:600}
+.siblings{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 20px}
+.siblings a{font-size:12px;padding:5px 11px;border-radius:100px;border:1px solid var(--line);background:var(--surface);color:var(--ink-soft);text-decoration:none}
+.siblings a:hover{background:var(--surface-2);color:var(--ink)}
+
+.workspace{display:grid;grid-template-columns:minmax(430px,1.05fr) minmax(360px,1fr);gap:20px;align-items:start}
+@media (max-width:1000px){.workspace{grid-template-columns:1fr}}
+
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+.panel-head{display:flex;align-items:center;gap:10px;padding:13px 16px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.panel-head h2{font-size:15.5px}
+.panel-head .sub{font-size:11.5px;color:var(--ink-faint);font-family:"IBM Plex Mono";letter-spacing:.04em;margin-left:auto}
+
+/* ---------- plate ---------- */
+.plate-wrap{position:sticky;top:74px}
+.plate-mode{padding:11px 16px;border-bottom:1px solid var(--line);background:var(--surface-2);font-size:12.5px;color:var(--ink-soft);display:flex;gap:8px;align-items:baseline;flex-wrap:wrap}
+.plate-mode b{color:var(--ink);font-weight:600}
+.figs{display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:10px 8px 4px}
+.figs.plantar{grid-template-columns:1fr;padding:0 8px 6px}
+.figs.plantar .fig svg{max-height:20vh}
+.fig{display:flex;flex-direction:column;align-items:center;gap:5px}
+.fig svg{width:100%;height:auto;max-height:52vh;display:block}
+.fig figcaption{font-family:"IBM Plex Mono";font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-faint)}
+
+.rg{fill:var(--heat-0);stroke:var(--paper);stroke-width:.5;stroke-opacity:.5;transition:fill .18s ease;cursor:pointer}
+.rg.h1{fill:var(--heat-1)} .rg.h2{fill:var(--heat-2)} .rg.h3{fill:var(--heat-3)}
+.rg.hovered{stroke:var(--ink);stroke-width:1.6;paint-order:stroke}
+.rg.picked{stroke:var(--accent);stroke-width:2.4;paint-order:stroke}
+@media (prefers-reduced-motion:reduce){.rg{transition:none}}
+.outline{fill:none;stroke:var(--line-strong);stroke-width:2.8;pointer-events:none}
+.divider{stroke:var(--paper);stroke-width:.9;fill:none;pointer-events:none;opacity:.55}
+
+.legend{display:flex;align-items:center;gap:14px;padding:10px 16px 13px;border-top:1px solid var(--line);flex-wrap:wrap}
+.legend .swatches{display:flex;align-items:center;gap:2px}
+.legend .sw{width:34px;height:13px;border-radius:2px}
+.legend .lbl{font-family:"IBM Plex Mono";font-size:10.5px;color:var(--ink-faint);letter-spacing:.04em}
+.legend .cap{font-size:11.5px;color:var(--ink-soft)}
+
+/* ---------- rail ---------- */
+.controls{padding:12px 16px;border-bottom:1px solid var(--line);display:flex;flex-direction:column;gap:9px}
+.search-wrap{position:relative}
+.search-wrap input{width:100%;font:inherit;font-size:13.5px;padding:8px 12px 8px 31px;border-radius:8px;border:1px solid var(--line);background:var(--paper);color:var(--ink)}
+.search-wrap svg{position:absolute;left:9px;top:50%;transform:translateY(-50%);opacity:.5}
+.chips{display:flex;gap:5px;flex-wrap:wrap}
+.chip{font-size:11.5px;font-weight:500;padding:4px 10px;border-radius:100px;border:1px solid var(--line);color:var(--ink-soft);background:var(--surface)}
+.chip:hover{background:var(--surface-2)}
+.chip.on{background:var(--accent-soft);border-color:var(--accent);color:var(--accent-ink);font-weight:600}
+
+.rail-body{max-height:min(1000px,74vh);overflow-y:auto}
+.slist{list-style:none;margin:0;padding:0}
+.slist li{border-bottom:1px solid var(--line)}
+.slist li:last-child{border-bottom:none}
+.srow{width:100%;text-align:left;padding:11px 16px;display:flex;gap:10px;align-items:flex-start}
+.srow:hover{background:var(--surface-2)}
+.srow.on{background:var(--accent-soft)}
+.srow .nm{font-size:13.6px;font-weight:500;flex:1;line-height:1.4}
+.srow .meta{display:flex;gap:6px;align-items:center;flex-shrink:0;padding-top:1px}
+.intens{font-family:"IBM Plex Mono";font-size:10px;font-weight:600;padding:2px 6px;border-radius:4px;white-space:nowrap}
+.intens.i3{background:var(--heat-3);color:var(--heat-3-ink)}
+.intens.i2{background:var(--heat-2);color:#fff}
+.intens.i1{background:var(--heat-1);color:var(--heat-1-ink)}
+.tier{font-family:"IBM Plex Mono";font-size:10px;font-weight:600;width:17px;height:17px;display:inline-flex;align-items:center;justify-content:center;border-radius:4px;flex-shrink:0}
+.tier.tA{background:var(--ink);color:var(--paper)}
+.tier.tB{background:var(--surface-3);color:var(--ink);border:1px solid var(--line-strong)}
+.tier.tC{background:transparent;color:var(--ink-faint);border:1px dashed var(--line-strong)}
+.catdot{font-family:"IBM Plex Mono";font-size:9.5px;color:var(--ink-faint);letter-spacing:.05em;text-transform:uppercase}
+
+.empty{padding:26px 16px;color:var(--ink-faint);font-size:13px;text-align:center}
+
+/* ---------- detail ---------- */
+.detail{padding:15px 16px 18px;display:flex;flex-direction:column;gap:12px}
+.detail h3{font-size:18px}
+.detail .dmeta{display:flex;gap:7px;align-items:center;flex-wrap:wrap}
+.detail .badge{font-size:11px;font-weight:600;padding:3px 9px;border-radius:100px;background:var(--surface-2);color:var(--ink-soft);border:1px solid var(--line)}
+.dblock{display:flex;flex-direction:column;gap:4px}
+.dblock .k{font-family:"IBM Plex Mono";font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-faint)}
+.dblock .v{font-size:13.4px;color:var(--ink);line-height:1.6}
+.dblock .v.soft{color:var(--ink-soft)}
+.zlist{display:flex;flex-direction:column;gap:4px;margin:0;padding:0;list-style:none}
+.zlist li{display:flex;gap:9px;align-items:center;font-size:13px}
+.zbar{width:6px;height:16px;border-radius:2px;flex-shrink:0}
+.zbar.i3{background:var(--heat-3)} .zbar.i2{background:var(--heat-2)} .zbar.i1{background:var(--heat-1)}
+.backbtn{align-self:flex-start;font-size:12.5px;color:var(--accent-ink);font-weight:600;padding:5px 11px;border-radius:7px;background:var(--accent-soft)}
+.warnbox{background:var(--surface-2);border:1px solid var(--line);border-left:3px solid var(--heat-2);border-radius:7px;padding:10px 12px;font-size:12.6px;color:var(--ink-soft);line-height:1.55}
+
+/* ---------- tooltip ---------- */
+#tip{position:fixed;z-index:200;pointer-events:none;background:var(--ink);color:var(--paper);font-size:12px;padding:6px 10px;border-radius:6px;opacity:0;transition:opacity .12s;max-width:250px;line-height:1.45}
+#tip.on{opacity:1}
+#tip .tt{font-family:"IBM Plex Mono";font-size:10px;opacity:.75;letter-spacing:.05em;display:block}
+
+/* ---------- table view ---------- */
+#tableView{display:none;margin-top:22px}
+#tableView.on{display:block}
+.table-scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;min-width:900px}
+thead th{position:sticky;top:0;text-align:left;font-family:"IBM Plex Mono";font-weight:600;font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-faint);background:var(--surface-2);padding:10px 13px;border-bottom:1px solid var(--line);white-space:nowrap}
+tbody td{padding:11px 13px;border-bottom:1px solid var(--line);vertical-align:top;font-size:13px}
+tbody tr:hover{background:var(--surface-2)}
+tbody td.soft{color:var(--ink-soft)}
+
+/* ---------- sections ---------- */
+section.doc{margin-top:52px;scroll-margin-top:80px}
+section.doc h2{font-size:23px;margin-bottom:5px}
+section.doc .note{color:var(--ink-soft);font-size:14px;max-width:74ch;margin-bottom:16px}
+.tiergrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:13px}
+.tiercard{background:var(--surface);border:1px solid var(--line);border-radius:9px;padding:14px 15px;display:flex;flex-direction:column;gap:7px}
+.tiercard .th{display:flex;align-items:center;gap:8px}
+.tiercard h3{font-size:14.5px}
+.tiercard p{margin:0;font-size:12.8px;color:var(--ink-soft);line-height:1.55}
+.refs{columns:2;column-gap:38px;font-size:12.8px;color:var(--ink-soft);list-style:none;padding:0}
+@media (max-width:700px){.refs{columns:1}}
+.refs li{break-inside:avoid;margin-bottom:9px;padding-left:13px;text-indent:-13px}
+.refs a{color:var(--ink-soft);text-decoration-color:var(--line-strong)}
+.refs a:hover{color:var(--accent-ink)}
+footer{border-top:1px solid var(--line);margin-top:58px;padding:24px 22px 56px;color:var(--ink-faint);font-size:12px}
+footer .fi{max-width:1400px;margin:0 auto;max-width:80ch}
+
+/* ---------- 3-D model view ---------- */
+.seg{display:inline-flex;background:var(--surface-2);border-radius:8px;padding:3px;gap:2px}
+.seg button{font-size:12px;font-weight:500;color:var(--ink-soft);padding:4px 10px;border-radius:6px;white-space:nowrap}
+.seg button:hover{color:var(--ink)}
+.seg button[aria-pressed="true"]{background:var(--surface);color:var(--accent-ink);font-weight:600;box-shadow:0 1px 2px rgba(20,30,24,.12)}
+.bothlink{font-size:12px;font-weight:500;color:var(--accent-ink);text-decoration:none;padding:4px 10px;border-radius:6px;border:1px solid var(--line);white-space:nowrap}
+.bothlink:hover{background:var(--accent-soft)}
+#model3d{display:none;padding:8px 8px 4px}
+.plate-wrap.model #model3d{display:block}
+.plate-wrap.model .figs{display:none}
+.b3d-canvas{display:block;width:100%;height:min(64vh,600px);border-radius:8px;background:var(--paper);cursor:grab;touch-action:none;outline:none}
+.b3d-canvas:focus-visible{box-shadow:0 0 0 2px var(--accent)}
+.b3d-canvas.grabbing{cursor:grabbing}
+.b3d-bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:9px 4px 4px}
+.b3d-views{display:flex;gap:4px;flex-wrap:wrap}
+.b3d-btn{font-size:11.5px;font-weight:500;color:var(--ink-soft);border:1px solid var(--line);border-radius:6px;padding:4px 9px;background:var(--surface)}
+.b3d-btn:hover{background:var(--surface-2);color:var(--ink)}
+.b3d-hint{font-family:"IBM Plex Mono";font-size:10px;letter-spacing:.04em;color:var(--ink-faint);margin-left:auto}
+@media (max-width:520px){.b3d-hint{display:none}}
+</style>
+
+<header class="top">
+  <div class="top-in">
+    <div class="brand"><span class="mark">SOMATIC · WHOLE BODY</span><h1>Referred Pain Atlas</h1></div>
+    <div class="top-actions">
+      <button class="btn" id="resetBtn">Reset</button>
+      <button class="btn" id="tableBtn">Table view</button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <p class="lede">Where <strong>somatic structures of the whole body</strong> — head, neck, trunk, upper and lower limb — send their pain, on one rotatable figure (drag to turn it; switch to <strong>Plates</strong> for the flat anterior, posterior and plantar maps). Upper- and lower-quarter data are merged: where their zones describe the same skin (low back, buttock, groin, lower abdomen) they share one label, so a click lists structures from both. Click a structure to light its referral zones, or click anywhere on the body to see every structure that refers there, ranked. Every entry carries an <strong>evidence grade</strong> — the maps are not all built on equal ground, and the difference matters more than the pictures suggest.</p>
+
+  <div class="siblings">
+    <a href="https://claude.ai/code/artifact/16be236e-63ce-4bd7-8864-23f074f5b1ba" target="_blank" rel="noopener">↗ Cervical Root Atlas</a>
+    <a href="https://claude.ai/code/artifact/084e13e2-762d-4459-b104-51f72a49ea22" target="_blank" rel="noopener">↗ Lumbosacral Root Atlas</a>
+    <a href="https://claude.ai/code/artifact/676fe00f-2483-4ca4-bf9c-f5d95067c3d6" target="_blank" rel="noopener">↗ Upper Quarter Differential</a>
+    <a href="https://claude.ai/code/artifact/adc45a60-1e27-4dfe-949d-410510ba9da2" target="_blank" rel="noopener">↗ Lower Quarter Differential</a>
+  </div>
+
+  <div class="workspace">
+
+    <!-- ============ PLATE ============ -->
+    <div class="plate-wrap">
+      <div class="panel">
+        <div class="panel-head">
+          <h2>Body</h2>
+          <div class="seg" role="group" aria-label="Plate style">
+            <button type="button" id="viewPlates" aria-pressed="true">Plates</button>
+            <button type="button" id="viewModel" aria-pressed="false">3-D model</button>
+          </div>
+          <span class="sub" id="plateSub">bilateral · both quarters</span>
+        </div>
+        <div class="plate-mode" id="plateMode"></div>
+        <div class="figs">
+          <figure class="fig">
+            <svg viewBox="0 0 260 440" role="img" aria-label="Anterior body heat map">
+              <defs>
+                <clipPath id="clip-ant-torso">
+        <path d="M 130,10 C 152,10 170,30 170,52 C 170,75 157,93 146,97 L 146,113 C 162,117 176,125 184,140 L 178,158 L 174,182 L 170,240 L 168,286 L 173,330 C 173,352 168,366 160,372 L 100,372 C 92,366 87,352 87,330 L 92,286 L 90,240 L 86,182 L 82,158 L 76,140 C 84,125 98,117 114,113 L 114,97 C 103,93 90,75 90,52 C 90,30 108,10 130,10 Z"/>
+                </clipPath>
+                <clipPath id="clip-ant-arms">
+        <path d="M 84,134 C 68,142 56,160 53,182 L 49,232 L 43,282 L 36,330 L 32,356 C 23,362 16,374 18,386 C 21,395 29,397 34,392 C 31,408 34,420 43,425 C 52,430 62,423 63,410 L 63,396 L 59,354 L 62,330 L 66,282 L 72,232 L 78,182 L 82,158 Z"/>
+        <path d="M 176,134 C 192,142 204,160 207,182 L 211,232 L 217,282 L 224,330 L 228,356 C 237,362 244,374 242,386 C 239,395 231,397 226,392 C 229,408 226,420 217,425 C 208,430 198,423 197,410 L 197,396 L 201,354 L 198,330 L 194,282 L 188,232 L 182,182 L 178,158 Z"/>
+                </clipPath>
+              </defs>
+        <path class="outline" d="M 130,10 C 152,10 170,30 170,52 C 170,75 157,93 146,97 L 146,113 C 162,117 176,125 184,140 L 178,158 L 174,182 L 170,240 L 168,286 L 173,330 C 173,352 168,366 160,372 L 100,372 C 92,366 87,352 87,330 L 92,286 L 90,240 L 86,182 L 82,158 L 76,140 C 84,125 98,117 114,113 L 114,97 C 103,93 90,75 90,52 C 90,30 108,10 130,10 Z"/>
+        <path class="outline" d="M 84,134 C 68,142 56,160 53,182 L 49,232 L 43,282 L 36,330 L 32,356 C 23,362 16,374 18,386 C 21,395 29,397 34,392 C 31,408 34,420 43,425 C 52,430 62,423 63,410 L 63,396 L 59,354 L 62,330 L 66,282 L 72,232 L 78,182 L 82,158 Z"/>
+        <path class="outline" d="M 176,134 C 192,142 204,160 207,182 L 211,232 L 217,282 L 224,330 L 228,356 C 237,362 244,374 242,386 C 239,395 231,397 226,392 C 229,408 226,420 217,425 C 208,430 198,423 197,410 L 197,396 L 201,354 L 198,330 L 194,282 L 188,232 L 182,182 L 178,158 Z"/>
+              <g clip-path="url(#clip-ant-torso)">
+        <rect class="rg" data-r="vertex" x="52" y="0" width="156" height="42"/>
+        <rect class="rg" data-r="temporal" x="52" y="42" width="54" height="22"/>
+        <rect class="rg" data-r="temporal" x="154" y="42" width="54" height="22"/>
+        <rect class="rg" data-r="frontal" x="106" y="42" width="48" height="28"/>
+        <rect class="rg" data-r="ear" x="52" y="64" width="54" height="36"/>
+        <rect class="rg" data-r="ear" x="154" y="64" width="54" height="36"/>
+        <rect class="rg" data-r="face" x="96" y="70" width="68" height="30"/>
+        <rect class="rg" data-r="neck-ant" x="98" y="96" width="64" height="30"/>
+        <rect class="rg" data-r="shoulder-top" x="40" y="112" width="61" height="38"/>
+        <rect class="rg" data-r="shoulder-top" x="159" y="112" width="61" height="38"/>
+        <rect class="rg" data-r="chest-ant" x="100" y="126" width="60" height="88"/>
+        <rect class="rg" data-r="chest-lat" x="56" y="150" width="44" height="64"/>
+        <rect class="rg" data-r="chest-lat" x="160" y="150" width="44" height="64"/>
+        <rect class="rg" data-r="epigastric" x="56" y="214" width="148" height="50"/>
+        <rect class="rg" data-r="lower-abdomen" x="56" y="264" width="148" height="58"/>
+        <rect class="rg" data-r="groin" x="56" y="322" width="148" height="58"/>
+              </g>
+              <g clip-path="url(#clip-ant-arms)">
+        <rect class="rg" data-r="deltoid-lat" x="0" y="130" width="68" height="64"/>
+        <rect class="rg" data-r="deltoid-lat" x="192" y="130" width="68" height="64"/>
+        <rect class="rg" data-r="deltoid-ant" x="68" y="130" width="44" height="64"/>
+        <rect class="rg" data-r="deltoid-ant" x="148" y="130" width="44" height="64"/>
+        <rect class="rg" data-r="arm-ant" x="0" y="194" width="63" height="60"/>
+        <rect class="rg" data-r="arm-ant" x="197" y="194" width="63" height="60"/>
+        <rect class="rg" data-r="arm-med" x="63" y="194" width="49" height="60"/>
+        <rect class="rg" data-r="arm-med" x="148" y="194" width="49" height="60"/>
+        <rect class="rg" data-r="elbow-lat" x="0" y="254" width="53" height="30"/>
+        <rect class="rg" data-r="elbow-lat" x="207" y="254" width="53" height="30"/>
+        <rect class="rg" data-r="elbow-ant" x="53" y="254" width="9" height="30"/>
+        <rect class="rg" data-r="elbow-ant" x="198" y="254" width="9" height="30"/>
+        <rect class="rg" data-r="elbow-med" x="62" y="254" width="50" height="30"/>
+        <rect class="rg" data-r="elbow-med" x="148" y="254" width="50" height="30"/>
+        <rect class="rg" data-r="forearm-rad" x="0" y="284" width="47" height="70"/>
+        <rect class="rg" data-r="forearm-rad" x="213" y="284" width="47" height="70"/>
+        <rect class="rg" data-r="forearm-volar" x="47" y="284" width="9" height="70"/>
+        <rect class="rg" data-r="forearm-volar" x="204" y="284" width="9" height="70"/>
+        <rect class="rg" data-r="forearm-uln" x="56" y="284" width="56" height="70"/>
+        <rect class="rg" data-r="forearm-uln" x="148" y="284" width="56" height="70"/>
+        <rect class="rg" data-r="wrist" x="0" y="354" width="112" height="20"/>
+        <rect class="rg" data-r="wrist" x="148" y="354" width="112" height="20"/>
+        <rect class="rg" data-r="thenar" x="0" y="374" width="38" height="66"/>
+        <rect class="rg" data-r="thenar" x="222" y="374" width="38" height="66"/>
+        <rect class="rg" data-r="palm" x="38" y="374" width="74" height="34"/>
+        <rect class="rg" data-r="palm" x="148" y="374" width="74" height="34"/>
+        <rect class="rg" data-r="digits-rad" x="38" y="408" width="16" height="32"/>
+        <rect class="rg" data-r="digits-rad" x="206" y="408" width="16" height="32"/>
+        <rect class="rg" data-r="digits-uln" x="54" y="408" width="58" height="32"/>
+        <rect class="rg" data-r="digits-uln" x="148" y="408" width="58" height="32"/>
+              </g>
+            </svg>
+            <figcaption>Upper quarter · anterior</figcaption>
+          </figure>
+          <figure class="fig">
+            <svg viewBox="0 0 260 440" role="img" aria-label="Posterior body heat map">
+              <defs>
+                <clipPath id="clip-post-torso">
+        <path d="M 130,10 C 152,10 170,30 170,52 C 170,75 157,93 146,97 L 146,113 C 162,117 176,125 184,140 L 178,158 L 174,182 L 170,240 L 168,286 L 173,330 C 173,352 168,366 160,372 L 100,372 C 92,366 87,352 87,330 L 92,286 L 90,240 L 86,182 L 82,158 L 76,140 C 84,125 98,117 114,113 L 114,97 C 103,93 90,75 90,52 C 90,30 108,10 130,10 Z"/>
+                </clipPath>
+                <clipPath id="clip-post-arms">
+        <path d="M 84,134 C 68,142 56,160 53,182 L 49,232 L 43,282 L 36,330 L 32,356 C 22,362 15,376 17,392 C 20,412 36,424 50,420 C 60,416 64,404 63,392 L 59,354 L 62,330 L 66,282 L 72,232 L 78,182 L 82,158 Z"/>
+        <path d="M 176,134 C 192,142 204,160 207,182 L 211,232 L 217,282 L 224,330 L 228,356 C 238,362 245,376 243,392 C 240,412 224,424 210,420 C 200,416 196,404 197,392 L 201,354 L 198,330 L 194,282 L 188,232 L 182,182 L 178,158 Z"/>
+                </clipPath>
+              </defs>
+        <path class="outline" d="M 130,10 C 152,10 170,30 170,52 C 170,75 157,93 146,97 L 146,113 C 162,117 176,125 184,140 L 178,158 L 174,182 L 170,240 L 168,286 L 173,330 C 173,352 168,366 160,372 L 100,372 C 92,366 87,352 87,330 L 92,286 L 90,240 L 86,182 L 82,158 L 76,140 C 84,125 98,117 114,113 L 114,97 C 103,93 90,75 90,52 C 90,30 108,10 130,10 Z"/>
+        <path class="outline" d="M 84,134 C 68,142 56,160 53,182 L 49,232 L 43,282 L 36,330 L 32,356 C 22,362 15,376 17,392 C 20,412 36,424 50,420 C 60,416 64,404 63,392 L 59,354 L 62,330 L 66,282 L 72,232 L 78,182 L 82,158 Z"/>
+        <path class="outline" d="M 176,134 C 192,142 204,160 207,182 L 211,232 L 217,282 L 224,330 L 228,356 C 238,362 245,376 243,392 C 240,412 224,424 210,420 C 200,416 196,404 197,392 L 201,354 L 198,330 L 194,282 L 188,232 L 182,182 L 178,158 Z"/>
+              <g clip-path="url(#clip-post-torso)">
+        <rect class="rg" data-r="vertex" x="52" y="0" width="156" height="42"/>
+        <rect class="rg" data-r="temporal" x="52" y="42" width="48" height="34"/>
+        <rect class="rg" data-r="temporal" x="160" y="42" width="48" height="34"/>
+        <rect class="rg" data-r="occiput" x="96" y="42" width="68" height="34"/>
+        <rect class="rg" data-r="suboccipital" x="96" y="76" width="68" height="22"/>
+        <rect class="rg" data-r="neck-upper" x="98" y="98" width="64" height="12"/>
+        <rect class="rg" data-r="neck-mid" x="98" y="110" width="64" height="14"/>
+        <rect class="rg" data-r="neck-lower" x="98" y="124" width="64" height="22"/>
+        <rect class="rg" data-r="shoulder-top" x="40" y="112" width="61" height="36"/>
+        <rect class="rg" data-r="shoulder-top" x="159" y="112" width="61" height="36"/>
+        <rect class="rg" data-r="scap-sup" x="76" y="146" width="26" height="26"/>
+        <rect class="rg" data-r="scap-sup" x="158" y="146" width="26" height="26"/>
+        <rect class="rg" data-r="interscap" x="102" y="146" width="56" height="68"/>
+        <rect class="rg" data-r="scap-border" x="76" y="172" width="26" height="52"/>
+        <rect class="rg" data-r="scap-border" x="158" y="172" width="26" height="52"/>
+        <rect class="rg" data-r="scap-inf" x="60" y="224" width="42" height="30"/>
+        <rect class="rg" data-r="scap-inf" x="158" y="224" width="42" height="30"/>
+        <rect class="rg" data-r="thoracic-mid" x="102" y="214" width="56" height="46"/>
+        <rect class="rg" data-r="tl-junction" x="102" y="260" width="56" height="48"/>
+        <rect class="rg" data-r="flank" x="56" y="254" width="46" height="54"/>
+        <rect class="rg" data-r="flank" x="158" y="254" width="46" height="54"/>
+        <rect class="rg" data-r="lumbar" x="56" y="308" width="148" height="46"/>
+        <rect class="rg" data-r="buttock-upper" x="56" y="354" width="148" height="46"/>
+              </g>
+              <g clip-path="url(#clip-post-arms)">
+        <rect class="rg" data-r="deltoid-post" x="0" y="130" width="112" height="64"/>
+        <rect class="rg" data-r="deltoid-post" x="148" y="130" width="112" height="64"/>
+        <rect class="rg" data-r="arm-post" x="0" y="194" width="112" height="60"/>
+        <rect class="rg" data-r="arm-post" x="148" y="194" width="112" height="60"/>
+        <rect class="rg" data-r="elbow-lat" x="0" y="254" width="52" height="30"/>
+        <rect class="rg" data-r="elbow-lat" x="208" y="254" width="52" height="30"/>
+        <rect class="rg" data-r="elbow-post" x="52" y="254" width="60" height="30"/>
+        <rect class="rg" data-r="elbow-post" x="148" y="254" width="60" height="30"/>
+        <rect class="rg" data-r="forearm-dors" x="0" y="284" width="112" height="70"/>
+        <rect class="rg" data-r="forearm-dors" x="148" y="284" width="112" height="70"/>
+        <rect class="rg" data-r="wrist" x="0" y="354" width="112" height="20"/>
+        <rect class="rg" data-r="wrist" x="148" y="354" width="112" height="20"/>
+        <rect class="rg" data-r="web-space" x="0" y="374" width="36" height="42"/>
+        <rect class="rg" data-r="web-space" x="224" y="374" width="36" height="42"/>
+        <rect class="rg" data-r="hand-dors" x="36" y="374" width="76" height="66"/>
+        <rect class="rg" data-r="hand-dors" x="148" y="374" width="76" height="66"/>
+        <rect class="rg" data-r="hand-dors" x="0" y="416" width="36" height="24"/>
+        <rect class="rg" data-r="hand-dors" x="224" y="416" width="36" height="24"/>
+              </g>
+            </svg>
+            <figcaption>Upper quarter · posterior</figcaption>
+          </figure>
+        </div>
+        <div class="figs">
+          <figure class="fig">
+            <svg viewBox="0 0 260 520" role="img" aria-label="Anterior lower-quarter heat map">
+              <defs>
+                <clipPath id="c-ant-t"><path d="M 82,0 L 178,0 L 185,44 L 190,86 C 189,114 184,132 176,144 L 150,157 C 140,151 136,141 130,141 C 124,141 120,151 110,157 L 84,144 C 76,132 71,114 70,86 L 75,44 Z"/></clipPath>
+                <clipPath id="c-ant-l"><path d="M 127,104 L 124,152 L 120,206 L 117,258 L 115,286 L 113,316 L 111,362 L 110,406 L 111,440 C 113,454 113,472 110,486 C 105,500 90,502 84,495 C 80,488 80,470 82,456 L 85,440 L 86,406 L 87,362 L 88,316 L 87,286 L 84,258 L 79,206 L 74,152 L 70,104 Z"/>
+        <path d="M 133,104 L 136,152 L 140,206 L 143,258 L 145,286 L 147,316 L 149,362 L 150,406 L 149,440 C 147,454 147,472 150,486 C 155,500 170,502 176,495 C 180,488 180,470 178,456 L 175,440 L 174,406 L 173,362 L 172,316 L 173,286 L 176,258 L 181,206 L 186,152 L 190,104 Z"/></clipPath>
+              </defs>
+              <path class="outline" d="M 82,0 L 178,0 L 185,44 L 190,86 C 189,114 184,132 176,144 L 150,157 C 140,151 136,141 130,141 C 124,141 120,151 110,157 L 84,144 C 76,132 71,114 70,86 L 75,44 Z"/>
+        <path class="outline" d="M 127,104 L 124,152 L 120,206 L 117,258 L 115,286 L 113,316 L 111,362 L 110,406 L 111,440 C 113,454 113,472 110,486 C 105,500 90,502 84,495 C 80,488 80,470 82,456 L 85,440 L 86,406 L 87,362 L 88,316 L 87,286 L 84,258 L 79,206 L 74,152 L 70,104 Z"/>
+        <path class="outline" d="M 133,104 L 136,152 L 140,206 L 143,258 L 145,286 L 147,316 L 149,362 L 150,406 L 149,440 C 147,454 147,472 150,486 C 155,500 170,502 176,495 C 180,488 180,470 178,456 L 175,440 L 174,406 L 173,362 L 172,316 L 173,286 L 176,258 L 181,206 L 186,152 L 190,104 Z"/>
+              <g clip-path="url(#c-ant-t)"><rect class="rg" data-r="lower-abdomen" x="56" y="0" width="148" height="70"/>
+        <rect class="rg" data-r="groin" x="84" y="70" width="32" height="74"/>
+        <rect class="rg" data-r="groin" x="144" y="70" width="32" height="74"/>
+        <rect class="rg" data-r="pubic" x="116" y="70" width="28" height="90"/>
+        <rect class="rg" data-r="hip-ant" x="50" y="70" width="34" height="74"/>
+        <rect class="rg" data-r="hip-ant" x="176" y="70" width="34" height="74"/></g>
+              <g clip-path="url(#c-ant-l)"><rect class="rg" data-r="troch" x="0" y="104" width="96" height="68"/>
+        <rect class="rg" data-r="troch" x="164" y="104" width="96" height="68"/>
+        <rect class="rg" data-r="thigh-lat" x="0" y="172" width="96" height="104"/>
+        <rect class="rg" data-r="thigh-lat" x="164" y="172" width="96" height="104"/>
+        <rect class="rg" data-r="thigh-ant" x="96" y="140" width="17" height="136"/>
+        <rect class="rg" data-r="thigh-ant" x="147" y="140" width="17" height="136"/>
+        <rect class="rg" data-r="thigh-med" x="113" y="140" width="27" height="136"/>
+        <rect class="rg" data-r="thigh-med" x="120" y="140" width="27" height="136"/>
+        <rect class="rg" data-r="knee-lat" x="0" y="276" width="97" height="38"/>
+        <rect class="rg" data-r="knee-lat" x="163" y="276" width="97" height="38"/>
+        <rect class="rg" data-r="knee-ant" x="97" y="276" width="14" height="38"/>
+        <rect class="rg" data-r="knee-ant" x="149" y="276" width="14" height="38"/>
+        <rect class="rg" data-r="knee-med" x="111" y="276" width="29" height="38"/>
+        <rect class="rg" data-r="knee-med" x="120" y="276" width="29" height="38"/>
+        <rect class="rg" data-r="leg-lat" x="0" y="314" width="98" height="124"/>
+        <rect class="rg" data-r="leg-lat" x="162" y="314" width="98" height="124"/>
+        <rect class="rg" data-r="leg-ant" x="98" y="314" width="10" height="124"/>
+        <rect class="rg" data-r="leg-ant" x="152" y="314" width="10" height="124"/>
+        <rect class="rg" data-r="leg-med" x="108" y="314" width="32" height="124"/>
+        <rect class="rg" data-r="leg-med" x="120" y="314" width="32" height="124"/>
+        <rect class="rg" data-r="ankle-lat" x="0" y="438" width="97" height="28"/>
+        <rect class="rg" data-r="ankle-lat" x="163" y="438" width="97" height="28"/>
+        <rect class="rg" data-r="ankle-ant" x="97" y="438" width="12" height="28"/>
+        <rect class="rg" data-r="ankle-ant" x="151" y="438" width="12" height="28"/>
+        <rect class="rg" data-r="ankle-med" x="109" y="438" width="31" height="28"/>
+        <rect class="rg" data-r="ankle-med" x="120" y="438" width="31" height="28"/>
+        <rect class="rg" data-r="foot-dorsum" x="0" y="466" width="140" height="28"/>
+        <rect class="rg" data-r="foot-dorsum" x="120" y="466" width="140" height="28"/>
+        <rect class="rg" data-r="lat-toes" x="0" y="494" width="100" height="18"/>
+        <rect class="rg" data-r="lat-toes" x="160" y="494" width="100" height="18"/>
+        <rect class="rg" data-r="great-toe" x="100" y="494" width="40" height="18"/>
+        <rect class="rg" data-r="great-toe" x="120" y="494" width="40" height="18"/></g>
+            </svg>
+            <figcaption>Lower quarter · anterior</figcaption>
+          </figure>
+          <figure class="fig">
+            <svg viewBox="0 0 260 520" role="img" aria-label="Posterior lower-quarter heat map">
+              <defs>
+                <clipPath id="c-post-t"><path d="M 82,0 L 178,0 L 185,44 L 190,86 C 189,114 184,132 176,144 L 150,157 C 140,151 136,141 130,141 C 124,141 120,151 110,157 L 84,144 C 76,132 71,114 70,86 L 75,44 Z"/></clipPath>
+                <clipPath id="c-post-l"><path d="M 127,104 L 124,152 L 120,206 L 117,258 L 115,286 L 113,316 L 111,362 L 110,406 L 111,440 C 113,454 113,472 110,486 C 105,500 90,502 84,495 C 80,488 80,470 82,456 L 85,440 L 86,406 L 87,362 L 88,316 L 87,286 L 84,258 L 79,206 L 74,152 L 70,104 Z"/>
+        <path d="M 133,104 L 136,152 L 140,206 L 143,258 L 145,286 L 147,316 L 149,362 L 150,406 L 149,440 C 147,454 147,472 150,486 C 155,500 170,502 176,495 C 180,488 180,470 178,456 L 175,440 L 174,406 L 173,362 L 172,316 L 173,286 L 176,258 L 181,206 L 186,152 L 190,104 Z"/></clipPath>
+              </defs>
+              <path class="outline" d="M 82,0 L 178,0 L 185,44 L 190,86 C 189,114 184,132 176,144 L 150,157 C 140,151 136,141 130,141 C 124,141 120,151 110,157 L 84,144 C 76,132 71,114 70,86 L 75,44 Z"/>
+        <path class="outline" d="M 127,104 L 124,152 L 120,206 L 117,258 L 115,286 L 113,316 L 111,362 L 110,406 L 111,440 C 113,454 113,472 110,486 C 105,500 90,502 84,495 C 80,488 80,470 82,456 L 85,440 L 86,406 L 87,362 L 88,316 L 87,286 L 84,258 L 79,206 L 74,152 L 70,104 Z"/>
+        <path class="outline" d="M 133,104 L 136,152 L 140,206 L 143,258 L 145,286 L 147,316 L 149,362 L 150,406 L 149,440 C 147,454 147,472 150,486 C 155,500 170,502 176,495 C 180,488 180,470 178,456 L 175,440 L 174,406 L 173,362 L 172,316 L 173,286 L 176,258 L 181,206 L 186,152 L 190,104 Z"/>
+              <g clip-path="url(#c-post-t)"><rect class="rg" data-r="tl-junction" x="96" y="0" width="68" height="24"/>
+        <rect class="rg" data-r="lumbar" x="96" y="24" width="22" height="38"/>
+        <rect class="rg" data-r="lumbar" x="142" y="24" width="22" height="38"/>
+        <rect class="rg" data-r="lumbar-midline" x="118" y="24" width="24" height="38"/>
+        <rect class="rg" data-r="flank" x="40" y="0" width="56" height="62"/>
+        <rect class="rg" data-r="flank" x="164" y="0" width="56" height="62"/>
+        <rect class="rg" data-r="iliac-crest" x="40" y="62" width="180" height="20"/>
+        <rect class="rg" data-r="si-joint" x="102" y="82" width="18" height="38"/>
+        <rect class="rg" data-r="si-joint" x="140" y="82" width="18" height="38"/>
+        <rect class="rg" data-r="sacrum" x="120" y="82" width="20" height="36"/>
+        <rect class="rg" data-r="coccyx" x="120" y="118" width="20" height="20"/>
+        <rect class="rg" data-r="buttock-upper" x="40" y="82" width="62" height="38"/>
+        <rect class="rg" data-r="buttock-upper" x="158" y="82" width="62" height="38"/>
+        <rect class="rg" data-r="buttock-lower" x="40" y="120" width="80" height="40"/>
+        <rect class="rg" data-r="buttock-lower" x="140" y="120" width="80" height="40"/>
+        <rect class="rg" data-r="perineum" x="108" y="138" width="44" height="22"/></g>
+              <g clip-path="url(#c-post-l)"><rect class="rg" data-r="thigh-lat" x="0" y="142" width="88" height="134"/>
+        <rect class="rg" data-r="thigh-lat" x="172" y="142" width="88" height="134"/>
+        <rect class="rg" data-r="ankle-lat" x="0" y="444" width="97" height="30"/>
+        <rect class="rg" data-r="ankle-lat" x="163" y="444" width="97" height="30"/>
+        <rect class="rg" data-r="ankle-med" x="97" y="444" width="43" height="30"/>
+        <rect class="rg" data-r="ankle-med" x="120" y="444" width="43" height="30"/>
+        <rect class="rg" data-r="thigh-post" x="88" y="142" width="52" height="134"/>
+        <rect class="rg" data-r="thigh-post" x="120" y="142" width="52" height="134"/>
+        <rect class="rg" data-r="knee-post" x="0" y="276" width="140" height="38"/>
+        <rect class="rg" data-r="knee-post" x="120" y="276" width="140" height="38"/>
+        <rect class="rg" data-r="calf" x="0" y="314" width="140" height="92"/>
+        <rect class="rg" data-r="calf" x="120" y="314" width="140" height="92"/>
+        <rect class="rg" data-r="achilles" x="0" y="406" width="140" height="38"/>
+        <rect class="rg" data-r="achilles" x="120" y="406" width="140" height="38"/>
+        <rect class="rg" data-r="heel-plantar" x="0" y="474" width="140" height="38"/>
+        <rect class="rg" data-r="heel-plantar" x="120" y="474" width="140" height="38"/></g>
+            </svg>
+            <figcaption>Lower quarter · posterior</figcaption>
+          </figure>
+        </div>
+        <div class="figs plantar">
+          <figure class="fig">
+            <svg viewBox="0 0 260 210" role="img" aria-label="Plantar heat map">
+              <defs><clipPath id="c-plant-l"><path d="M 75,8 C 95,8 110,20 111,40 L 108,70 C 104,86 100,100 100,120 L 101,150 C 103,176 92,197 75,197 C 58,197 47,176 49,150 L 50,120 C 50,100 46,86 42,70 L 39,40 C 40,20 55,8 75,8 Z"/>
+        <path d="M 185,8 C 165,8 150,20 149,40 L 152,70 C 156,86 160,100 160,120 L 159,150 C 157,176 168,197 185,197 C 202,197 213,176 211,150 L 210,120 C 210,100 214,86 218,70 L 221,40 C 220,20 205,8 185,8 Z"/></clipPath></defs>
+              <path class="outline" d="M 75,8 C 95,8 110,20 111,40 L 108,70 C 104,86 100,100 100,120 L 101,150 C 103,176 92,197 75,197 C 58,197 47,176 49,150 L 50,120 C 50,100 46,86 42,70 L 39,40 C 40,20 55,8 75,8 Z"/>
+        <path class="outline" d="M 185,8 C 165,8 150,20 149,40 L 152,70 C 156,86 160,100 160,120 L 159,150 C 157,176 168,197 185,197 C 202,197 213,176 211,150 L 210,120 C 210,100 214,86 218,70 L 221,40 C 220,20 205,8 185,8 Z"/>
+              <g clip-path="url(#c-plant-l)"><rect class="rg" data-r="lat-toes" x="30" y="0" width="56" height="46"/>
+        <rect class="rg" data-r="lat-toes" x="174" y="0" width="56" height="46"/>
+        <rect class="rg" data-r="great-toe" x="86" y="0" width="34" height="46"/>
+        <rect class="rg" data-r="great-toe" x="140" y="0" width="34" height="46"/>
+        <rect class="rg" data-r="forefoot-plant" x="30" y="46" width="90" height="46"/>
+        <rect class="rg" data-r="forefoot-plant" x="140" y="46" width="90" height="46"/>
+        <rect class="rg" data-r="arch" x="30" y="92" width="90" height="56"/>
+        <rect class="rg" data-r="arch" x="140" y="92" width="90" height="56"/>
+        <rect class="rg" data-r="heel-plantar" x="30" y="148" width="90" height="62"/>
+        <rect class="rg" data-r="heel-plantar" x="140" y="148" width="90" height="62"/></g>
+            </svg>
+            <figcaption>Plantar — soles, toes up</figcaption>
+          </figure>
+        </div>
+        <div id="model3d"></div>
+        <div class="legend" id="legend"></div>
+      </div>
+    </div>
+
+    <!-- ============ RAIL ============ -->
+    <div class="panel">
+      <div class="panel-head">
+        <h2 id="railTitle">Structures</h2>
+        <span class="sub" id="railCount"></span>
+      </div>
+      <div class="controls" id="controls">
+        <div class="search-wrap">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input id="q" type="text" placeholder="Search structures, zones, clinical notes…" autocomplete="off">
+        </div>
+        <div class="chips" id="qChips"></div>
+        <div class="chips" id="catChips"></div>
+        <div class="chips" id="tierChips"></div>
+      </div>
+      <div class="rail-body" id="railBody"></div>
+    </div>
+  </div>
+
+  <!-- ============ TABLE VIEW ============ -->
+  <div id="tableView">
+    <div class="panel">
+      <div class="panel-head"><h2>Full data table</h2><span class="sub">every structure &amp; zone</span></div>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>Structure</th><th>Category</th><th>Grade</th><th>Referral zones (3 = primary, 2 = common, 1 = spillover)</th><th>Clinical note</th></tr></thead>
+          <tbody id="tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ EVIDENCE ============ -->
+  <section class="doc" id="evidence">
+    <h2>How to read the evidence grades</h2>
+    <p class="note">Referred-pain maps circulate as if they were all the same kind of fact. They are not. These three grades separate zones that were <em>caused</em> under controlled conditions from zones that were <em>observed</em> in clinic — a distinction that governs how much weight any single map should carry.</p>
+    <div class="tiergrid" id="tierGrid"></div>
+  </section>
+
+  <!-- ============ CAVEATS ============ -->
+  <section class="doc" id="caveats">
+    <h2>Four things this atlas cannot do</h2>
+    <p class="note">These limitations are documented in the source literature itself, not imported criticism. Reading the maps without them produces false confidence.</p>
+    <div class="tiergrid">
+      <div class="tiercard">
+        <h3>Localise a segment</h3>
+        <p>Bogduk's caution on the cervical facet maps — each part of the neck lies in at least two, possibly four, referral zones — holds in the lumbar spine too, where McCall found "considerable overlap" between adjacent levels and discography shows the same at every level. A pain map narrows a differential; it does not name a level. Controlled diagnostic blocks do.</p>
+      </div>
+      <div class="tiercard">
+        <h3>Tell you the side</h3>
+        <p>Between 30% and 62% of cervical discs produced <em>bilateral</em> pain at every level tested (Grubb &amp; Kelly 2000; Slipman 2005). Laterality of symptoms does not reliably indicate laterality of pathology. Referral is typically ipsilateral, which is why both sides are painted here — but the exceptions are common enough to matter.</p>
+      </div>
+      <div class="tiercard">
+        <h3>Name the source from location alone</h3>
+        <p>DePalma 2011: paramidline low back pain cannot separate a facet joint from the sacroiliac joint; only midline pain discriminates (95.8% of discogenic cases vs 15.4% facet and 12.9% SI joint). The hip refers to the buttock more often than to the groin (Lesher 2008), and both the SI joint and the hip reach below the knee. On this figure the low back, buttock and groin carry one label each precisely because the literature cannot split them by location.</p>
+      </div>
+      <div class="tiercard">
+        <h3>Prove a trigger point exists</h3>
+        <p>Meta-analysis of trigger-point palpation found interrater κ = 0.45 overall, with taut-band and twitch-response agreement at or near chance in some studies (Rathbone 2017; Lucas 2009). The construct itself is contested (Quintner 2015 vs. Dommerholt 2015). Muscle-referred pain is a real, reproducible phenomenon — Kellgren established that in 1938 — but the crisp borders drawn in myofascial atlases outrun their evidence.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SOURCES ============ -->
+  <section class="doc" id="sources">
+    <h2>Sources</h2>
+    <p class="note">Primary mapping studies for both quarters and the systematic reviews that qualify them.</p>
+    <ul class="refs">
+      <li>Dwyer A, Aprill C, Bogduk N. Cervical zygapophyseal joint pain patterns I: a study in normal volunteers. <em>Spine</em> 1990;15(6):453-7.</li>
+      <li>Aprill C, Dwyer A, Bogduk N. Cervical zygapophyseal joint pain patterns II: a clinical evaluation. <em>Spine</em> 1990;15(6):458-61.</li>
+      <li>Dreyfuss P, Michaelsen M, Fletcher D. Atlanto-occipital and lateral atlanto-axial joint pain patterns. <em>Spine</em> 1994;19(10):1125-31.</li>
+      <li>Dreyfuss P, Tibiletti C, Dreyer SJ. Thoracic zygapophyseal joint pain patterns: a study in normal volunteers. <em>Spine</em> 1994;19(7):807-11.</li>
+      <li>Fukui S, Ohseto K, Shiotani M, et al. Referred pain distribution of the cervical zygapophyseal joints and cervical dorsal rami. <em>Pain</em> 1996;68(1):79-83.</li>
+      <li>Fukui S, Ohseto K, Shiotani M. Patterns of pain induced by distending the thoracic zygapophyseal joints. <em>Reg Anesth</em> 1997;22(4):332-6.</li>
+      <li>Lord SM, Barnsley L, Wallis BJ, Bogduk N. Third occipital nerve headache: a prevalent post-traumatic headache. <em>J Neurol Neurosurg Psychiatry</em> 1994;57(10):1187-90.</li>
+      <li>Aprill C, Axinn MJ, Bogduk N. Occipital headaches stemming from the lateral atlanto-axial (C1-2) joint. <em>Cephalalgia</em> 2002;22(1):15-22.</li>
+      <li>Cooper G, Bailey B, Bogduk N. Cervical zygapophysial joint pain maps. <em>Pain Med</em> 2007;8(4):344-53.</li>
+      <li>Schellhas KP, Smith MD, Gundry CR, Pollei SR. Cervical discogenic pain: prospective correlation of MRI and discography. <em>Spine</em> 1996.</li>
+      <li>Schellhas KP, Garvey TA, Johnson BA, et al. Cervical diskography: analysis of provoked responses at C2-3, C3-4, C4-5. <em>AJNR</em> 2000;21(2):269-75.</li>
+      <li>Grubb SA, Kelly CK. Cervical discography: clinical implications from 12 years of experience. <em>Spine</em> 2000;25(11):1382-9.</li>
+      <li>Slipman CW, Plastaras CT, Palmitier RA, et al. Symptom provocation of fluoroscopically guided cervical nerve root stimulation: are dynatomal maps identical to dermatomal maps? <em>Spine</em> 1998;23(20):2235-42.</li>
+      <li>Slipman CW, et al. Provocative cervical discography symptom mapping. <em>Spine J</em> 2005;5:381-8.</li>
+      <li>Kellgren JH. Observations on referred pain arising from muscle. <em>Clin Sci</em> 1938;3:175-90.</li>
+      <li>Kellgren JH. On the distribution of pain arising from deep somatic structures. <em>Clin Sci</em> 1939;4:35-46.</li>
+      <li>Feinstein B, Langton JNK, Jameson RM, Schiller F. Experiments on pain referred from deep somatic tissues. <em>J Bone Joint Surg</em> 1954;36-A:981-97.</li>
+      <li>Gerber C, Galantay RV, Hersche O. The pattern of pain produced by irritation of the acromioclavicular joint and the subacromial space. <em>J Shoulder Elbow Surg</em> 1998;7(4):352-5.</li>
+      <li>Fortin JD, Dwyer AP, West S, Pier J. Sacroiliac joint: pain referral maps. <em>Spine</em> 1994;19:1475-89.</li>
+      <li>Simons DG, Travell JG, Simons LS. <em>Myofascial Pain and Dysfunction: The Trigger Point Manual, Vol. 1 — Upper Half of Body.</em> 2nd ed. Williams &amp; Wilkins.</li>
+      <li>Graven-Nielsen T, Arendt-Nielsen L, et al. Quantification of local and referred muscle pain after hypertonic saline injection. <em>Pain</em> 1997.</li>
+      <li><a href="https://pubmed.ncbi.nlm.nih.gov/19158550/" target="_blank" rel="noopener">Lucas N, et al. Reliability of physical examination for diagnosis of myofascial trigger points. <em>Clin J Pain</em> 2009.</a></li>
+      <li><a href="https://pubmed.ncbi.nlm.nih.gov/28098584/" target="_blank" rel="noopener">Rathbone ATL, Grosman-Rimon L, Kumbhare DA. Interrater agreement of manual palpation for identification of myofascial trigger points. <em>Clin J Pain</em> 2017.</a></li>
+      <li><a href="https://academic.oup.com/rheumatology/article-abstract/54/3/392/1796114" target="_blank" rel="noopener">Quintner JL, Bove GM, Cohen ML. A critical evaluation of the trigger point phenomenon. <em>Rheumatology</em> 2015;54(3):392-9.</a></li>
+      <li><a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC8633772/" target="_blank" rel="noopener">Consensus practice guidelines on interventions for cervical spine (facet) joint pain. <em>Pain Med</em> 2021.</a></li>
+      <li>Mooney V, Robertson J. The facet syndrome. <em>Clin Orthop Relat Res</em> 1976;(115):149-56.</li>
+      <li>McCall IW, Park WM, O'Brien JP. Induced pain referral from posterior lumbar elements in normal subjects. <em>Spine</em> 1979;4(5):441-6.</li>
+      <li><a href="https://pubmed.ncbi.nlm.nih.gov/9430810/" target="_blank" rel="noopener">Fukui S, Ohseto K, Shiotani M, et al. Distribution of referred pain from the lumbar zygapophyseal joints and dorsal rami. <em>Clin J Pain</em> 1997;13(4):303-7.</a></li>
+      <li>Marks R. Distribution of pain provoked from lumbar facet joints and related structures during diagnostic spinal infiltration. <em>Pain</em> 1989;39(1):37-40.</li>
+      <li>Fortin JD, Aprill CN, Ponthieux B, Pier J. Sacroiliac joint: pain referral maps upon applying a new injection/arthrography technique. Part II: clinical evaluation. <em>Spine</em> 1994;19(13):1483-9.</li>
+      <li>Slipman CW, Jackson HB, Lipetz JS, et al. Sacroiliac joint pain referral zones. <em>Arch Phys Med Rehabil</em> 2000;81(3):334-8.</li>
+      <li>Laslett M, Aprill CN, McDonald B, Young SB. Diagnosis of sacroiliac joint pain: validity of individual provocation tests and composites of tests. <em>Man Ther</em> 2005;10(3):207-18.</li>
+      <li>Lesher JM, Dreyfuss P, Hager N, Kaplan M, Furman M. Hip joint pain referral patterns: a descriptive study. <em>Pain Med</em> 2008;9(1):22-5.</li>
+      <li>DePalma MJ, Ketchum JM, Trussell BS, Saullo TR, Slipman CW. Does the location of low back pain predict its source? <em>PM&amp;R</em> 2011;3(1):33-9.</li>
+      <li>Ohnmeiss DD, Vanharanta H, Ekholm J. Degree of disc disruption and lower extremity pain. <em>Spine</em> 1997;22(14):1600-5.</li>
+      <li>Ohnmeiss DD, Vanharanta H, Ekholm J. Relation between pain location and disc pathology: a study of pain drawings and CT/discography. <em>Clin J Pain</em> 1999;15(3):210-7.</li>
+      <li>Carragee EJ, Tanner CM, Khurana S, et al. The rates of false-positive lumbar discography in select patients without low back symptoms. <em>Spine</em> 2000;25(11):1373-80.</li>
+      <li>Suri P, Rainville J, Katz JN, et al. The accuracy of the physical examination for the diagnosis of midlumbar and low lumbar nerve root impingement. <em>Spine</em> 2011;36(1):63-73.</li>
+      <li>Travell JG, Simons DG. <em>Myofascial Pain and Dysfunction: The Trigger Point Manual, Vol. 2 — The Lower Extremities.</em> Williams &amp; Wilkins, 1992.</li>
+    </ul>
+  </section>
+</main>
+
+<div id="tip" role="status" aria-live="polite"></div>
+
+<footer><div class="fi">An educational anatomy and clinical-reasoning reference. Referred-pain maps narrow a differential; they do not establish a diagnosis. Where the literature disagrees or the evidence is thin, this atlas says so rather than smoothing it over — check the grade before you lean on a pattern.</div></footer>
+
+<script>
+/* Body3D — a dependency-free schematic body renderer for the referred-pain atlases.
+ *
+ * Why not a 3D library: the page must stay self-contained and work offline, and
+ * a schematic figure of ~3,500 quads needs nothing a Canvas2D painter's
+ * algorithm cannot do. Everything here is plain JavaScript.
+ *
+ * Geometry: each body part is a lofted tube — a list of "stations" giving the
+ * centre and elliptical radii at points along an axis — sampled into rings and
+ * stitched into quads. Every quad is assigned the SAME region id the 2-D plates
+ * use, by projecting its centroid onto the anterior / posterior (/ plantar)
+ * plate and looking up the rectangle it lands in. The 3-D model therefore paints
+ * exactly what the plates paint; it is a different view of one dataset.
+ *
+ * Rendering: rotate → perspective-project → cull back faces → depth-sort →
+ * flat-shade. Region boundaries and highlights are stroked per face in painter
+ * order so they are occluded correctly for free.
+ */
+(function (global) {
+  'use strict';
+
+  const TAU = Math.PI * 2;
+  const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+  const deg = d => d * Math.PI / 180;
+
+  /* ---------------------------------------------------------------- spline */
+  // cubic Hermite through non-uniformly spaced stations (finite-difference tangents)
+  function hermite(st, axis, keys, u) {
+    let i = 0;
+    while (i < st.length - 2 && u > st[i + 1][axis]) i++;
+    const a = st[i], b = st[i + 1];
+    const h = b[axis] - a[axis];
+    const t = clamp((u - a[axis]) / h, 0, 1);
+    const t2 = t * t, t3 = t2 * t;
+    const h00 = 2 * t3 - 3 * t2 + 1, h10 = t3 - 2 * t2 + t, h01 = -2 * t3 + 3 * t2, h11 = t3 - t2;
+    const prev = st[Math.max(0, i - 1)], next = st[Math.min(st.length - 1, i + 2)];
+    const out = {};
+    keys.forEach(k => {
+      const m0 = (i === 0) ? (b[k] - a[k]) / h : (b[k] - prev[k]) / (b[axis] - prev[axis]);
+      const m1 = (i === st.length - 2) ? (b[k] - a[k]) / h : (next[k] - a[k]) / (next[axis] - a[axis]);
+      out[k] = h00 * a[k] + h10 * h * m0 + h01 * b[k] + h11 * h * m1;
+    });
+    return out;
+  }
+
+  /* ---------------------------------------------------------------- mesh */
+  // A frame maps a plate set's own coordinates into the model's world frame:
+  // world.x = mid + (x - mid) * sx ;  world.y = y * sy + oy ;  z is untouched.
+  const ID = { sx: 1, sy: 1, oy: 0 };
+  const toWorld = (fr, mid, x, y) => [mid + (x - mid) * fr.sx, y * fr.sy + fr.oy];
+  const toNative = (fr, mid, x, y) => [mid + (x - mid) / fr.sx, (y - fr.oy) / fr.sy];
+
+  // Accept the older single-plate-set shape as well as the multi-set shape:
+  //   spec.plates + spec.foot                     → one set, every part bound to it
+  //   spec.plateSets {name:{ant,post,plant,foot}} + part.bind [{set, frame, yMin, yMax}]
+  function normalise(spec) {
+    if (!spec.plateSets) {
+      spec.plateSets = { default: { ant: spec.plates.ant, post: spec.plates.post, plant: spec.plates.plant, foot: spec.foot } };
+    }
+    spec.parts.forEach(p => {
+      p.frame = Object.assign({}, ID, p.frame || {});
+      if (!p.bind) p.bind = p.bind === null ? [] : [{ set: 'default' }];
+      p.bind.forEach(b => { b.frame = Object.assign({}, ID, b.frame || {}); });
+    });
+    return spec;
+  }
+
+  function buildMesh(spec) {
+    normalise(spec);
+    const V = [];      // vertices  [X, Y, Z] in world coordinates (Y down, Z anterior)
+    const F = [];      // faces     {v:[...], n:[..], c:[..], part, rid, nb:[...]}
+    const lookup = makeLookup(spec);
+
+    spec.parts.forEach(part => {
+      (part.mirror ? [false, true] : [false]).forEach(mir => loft(part, mir));
+    });
+
+    function loft(part, mir) {
+      const axis = part.axis || 'y';                 // 'y' (vertical) or 'z' (feet)
+      const st = part.stations;
+      const isY = axis === 'y';
+      const keys = isY ? ['cx', 'cz', 'rx', 'rz'] : ['cx', 'cy', 'rx', 'ry'];
+      const u0 = st[0][axis], u1 = st[st.length - 1][axis];
+      const M = part.sectors || 20;
+      const step = part.step || 8;
+      const us = ringPositions(spec, part, u0, u1, step);
+      const nRings = us.length;
+      const samples = us.map(u => hermite(st, axis, keys, u));
+      const angles = isY ? sectorAngles(spec, part, samples, M) : null;
+      const MM = angles ? angles[0].length : M;
+      const ringIdx = [], centres = [];
+      for (let i = 0; i < nRings; i++) {
+        const u = us[i];
+        const s = samples[i];
+        const idx = [];
+        const fr = part.frame;
+        let C, cw;
+        if (isY) { cw = toWorld(fr, spec.mid, s.cx, u); C = [mir ? 2 * spec.mid - cw[0] : cw[0], cw[1], s.cz]; }
+        else { cw = toWorld(fr, spec.mid, s.cx, s.cy); C = [mir ? 2 * spec.mid - cw[0] : cw[0], cw[1], u]; }
+        for (let j = 0; j < MM; j++) {
+          const th = angles ? angles[i][j] : TAU * j / MM;
+          let X, Y, Z;
+          if (isY) {
+            const rx = Math.max(0.4, s.rx), rz = Math.max(0.4, s.rz);
+            X = s.cx + rx * Math.cos(th); Y = u; Z = s.cz + rz * Math.sin(th);
+          } else {
+            const rx = Math.max(0.4, s.rx), ry = Math.max(0.4, s.ry);
+            X = s.cx + rx * Math.cos(th); Y = s.cy + ry * Math.sin(th); Z = u;
+          }
+          const w = toWorld(fr, spec.mid, X, Y); X = w[0]; Y = w[1];
+          if (mir) X = 2 * spec.mid - X;
+          idx.push(V.push([X, Y, Z]) - 1);
+        }
+        ringIdx.push(idx); centres.push(C);
+      }
+      const base = F.length;
+      const fid = (i, j) => base + i * MM + ((j + MM) % MM);
+      for (let i = 0; i < nRings - 1; i++) {
+        const c0 = centres[i], c1 = centres[i + 1];
+        const axisMid = [(c0[0] + c1[0]) / 2, (c0[1] + c1[1]) / 2, (c0[2] + c1[2]) / 2];
+        for (let j = 0; j < MM; j++) {
+          const a = ringIdx[i][j], b = ringIdx[i][(j + 1) % MM],
+                c = ringIdx[i + 1][(j + 1) % MM], d = ringIdx[i + 1][j];
+          const f = makeFace([a, b, c, d], part, axisMid);
+          // neighbours by edge: 0 = a-b (previous ring row), 1 = b-c (next sector),
+          // 2 = c-d (next row), 3 = d-a (previous sector)
+          f.nb = [i > 0 ? fid(i - 1, j) : -1, fid(i, j + 1),
+                  i < nRings - 2 ? fid(i + 1, j) : -1, fid(i, j - 1)];
+          F.push(f);
+        }
+      }
+      // flat, region-less caps so a cut end never shows the hollow inside
+      const cap = (ring, row, slot, dir) => {
+        const f = makeFace(ring.slice(), part, null);
+        f.cap = true; f.n = dir; f.rid = null; f.nb = ring.map(() => -1);
+        const ci = F.push(f) - 1;
+        row.forEach(rf => { F[rf].nb[slot] = ci; });
+      };
+      if (part.capStart) {
+        const row = []; for (let j = 0; j < MM; j++) row.push(fid(0, j));
+        cap(ringIdx[0], row, 0, isY ? [0, -1, 0] : [0, 0, -1]);
+      }
+      if (part.capEnd) {
+        const row = []; for (let j = 0; j < MM; j++) row.push(fid(nRings - 2, j));
+        cap(ringIdx[nRings - 1], row, 2, isY ? [0, 1, 0] : [0, 0, 1]);
+      }
+    }
+
+    function makeFace(idx, part, axisMid) {
+      const pts = idx.map(i => V[i]);
+      const c = [0, 0, 0];
+      pts.forEach(p => { c[0] += p[0]; c[1] += p[1]; c[2] += p[2]; });
+      c[0] /= pts.length; c[1] /= pts.length; c[2] /= pts.length;
+      const f = { v: idx, n: [0, 0, 1], c: c, part: part.tag, rid: null, tint: part.tint || null };
+      if (!axisMid) return f;
+      // Newell normal — robust for slightly non-planar quads
+      let n = [0, 0, 0];
+      for (let i = 0; i < pts.length; i++) {
+        const p = pts[i], q = pts[(i + 1) % pts.length];
+        n[0] += (p[1] - q[1]) * (p[2] + q[2]);
+        n[1] += (p[2] - q[2]) * (p[0] + q[0]);
+        n[2] += (p[0] - q[0]) * (p[1] + q[1]);
+      }
+      const L = Math.hypot(n[0], n[1], n[2]) || 1;
+      n = [n[0] / L, n[1] / L, n[2] / L];
+      // outward = away from the loft axis
+      const d = [c[0] - axisMid[0], c[1] - axisMid[1], c[2] - axisMid[2]];
+      if (n[0] * d[0] + n[1] * d[1] + n[2] * d[2] < 0) n = [-n[0], -n[1], -n[2]];
+      f.n = n;
+      f.rid = part.region !== undefined ? part.region : lookup(part, c, n);
+      return f;
+    }
+
+    return { V, F };
+  }
+
+  // ring positions: a regular step, plus a ring at every plate-rectangle edge
+  // that crosses this part, so horizontal region boundaries fall exactly on a
+  // ring instead of the nearest one
+  // every plate rectangle that binds to this part, expressed in the part's
+  // native frame: [rid, x, y, w, h, view]
+  function boundRects(spec, part) {
+    const out = [];
+    part.bind.forEach(b => {
+      const set = spec.plateSets[b.set]; if (!set) return;
+      ['ant', 'post'].forEach(v => (set[v] || []).forEach(r => {
+        if (r[5] !== part.tag) return;
+        // set-native → world → part-native
+        const p0 = toWorld(b.frame, spec.mid, r[1], r[2]), p1 = toWorld(b.frame, spec.mid, r[1] + r[3], r[2] + r[4]);
+        if (b.yMin != null && p1[1] < b.yMin) return;
+        if (b.yMax != null && p0[1] > b.yMax) return;
+        const y0w = b.yMin != null ? Math.max(p0[1], b.yMin) : p0[1];
+        const y1w = b.yMax != null ? Math.min(p1[1], b.yMax) : p1[1];
+        const q0 = toNative(part.frame, spec.mid, p0[0], y0w), q1 = toNative(part.frame, spec.mid, p1[0], y1w);
+        out.push([r[0], q0[0], q0[1], q1[0] - q0[0], q1[1] - q0[1], v]);
+      }));
+      // binding limits are boundaries too
+      [b.yMin, b.yMax].forEach(y => { if (y != null) { const q = toNative(part.frame, spec.mid, spec.mid, y); out.push([null, 0, q[1], 0, 0, 'lim']); } });
+    });
+    return out;
+  }
+
+  // ring positions: a regular step, plus a ring at every plate-rectangle edge
+  // that crosses this part, so horizontal region boundaries fall exactly on a
+  // ring instead of the nearest one
+  function ringPositions(spec, part, u0, u1, step) {
+    const set = [u0, u1];
+    if ((part.axis || 'y') === 'y') {
+      boundRects(spec, part).forEach(r => {
+        [r[2], r[2] + r[4]].forEach(y => { if (y > u0 + 1.5 && y < u1 - 1.5) set.push(Math.round(y * 4) / 4); });
+      });
+    }
+    const edges = Array.from(new Set(set)).sort((a, b) => a - b);
+    const out = [];
+    for (let i = 0; i < edges.length - 1; i++) {
+      const a = edges[i], b = edges[i + 1];
+      const n = Math.max(1, Math.round((b - a) / step));
+      for (let k = 0; k < n; k++) out.push(a + (b - a) * k / n);
+    }
+    out.push(u1);
+    // merge rings closer than 1.5 units (keeps quads from degenerating)
+    const merged = [out[0]];
+    for (let i = 1; i < out.length; i++) {
+      if (out[i] - merged[merged.length - 1] >= 1.5) merged.push(out[i]);
+      else if (i === out.length - 1) merged[merged.length - 1] = out[i];
+    }
+    return merged;
+  }
+
+  // sector angles per ring: uniform, but warped so that a sector boundary sits
+  // exactly where each plate-rectangle X-edge crosses the tube. Anchor ORDER is
+  // the same on every ring (acos is monotone), so the rings still stitch as a grid.
+  function sectorAngles(spec, part, samples, M) {
+    let xmin = Infinity, xmax = -Infinity;
+    samples.forEach(s => { xmin = Math.min(xmin, s.cx - s.rx); xmax = Math.max(xmax, s.cx + s.rx); });
+    const ys = part.stations.map(s => s.y);
+    const y0 = Math.min(...ys), y1 = Math.max(...ys);
+    const xs = new Set();
+    boundRects(spec, part).forEach(r => {
+      if (r[5] === 'lim') return;
+      if (r[2] > y1 || r[2] + r[4] < y0) return;
+      [r[1], r[1] + r[3]].forEach(x => {
+        const X = r[5] === 'post' ? 2 * spec.mid - x : x;
+        if (X > xmin + 1 && X < xmax - 1) xs.add(Math.round(X * 2) / 2);
+      });
+    });
+    const edges = Array.from(xs).sort((a, b) => b - a);       // descending x → ascending front angle
+    if (!edges.length) return samples.map(() => Array.from({ length: M }, (_, j) => TAU * j / M));
+    // anchors per ring, in a fixed order: front (x desc), then back (x asc)
+    const anchors = samples.map(s => {
+      const front = edges.map(x => Math.acos(clamp((x - s.cx) / s.rx, -1, 1)));
+      const back = front.slice().reverse().map(a => TAU - a);
+      return front.concat(back);
+    });
+    const K = anchors[0].length;
+    // mean interval sizes → integer sector counts per interval (same on every ring)
+    const mean = new Array(K).fill(0);
+    anchors.forEach(a => { for (let k = 0; k < K; k++) { const nx = a[(k + 1) % K]; mean[k] += ((nx - a[k]) % TAU + TAU) % TAU; } });
+    const counts = mean.map(m => Math.max(1, Math.round(M * (m / anchors.length) / TAU)));
+    return anchors.map(a => {
+      const out = [];
+      for (let k = 0; k < K; k++) {
+        const a0 = a[k], span = ((a[(k + 1) % K] - a0) % TAU + TAU) % TAU;
+        for (let q = 0; q < counts[k]; q++) out.push((a0 + span * q / counts[k]) % TAU);
+      }
+      return out;
+    });
+  }
+
+  /* ------------------------------------------------- 2-D plate lookup */
+  function makeLookup(spec) {
+    const snap = spec.snap == null ? 10 : spec.snap;
+    function find(set, view, tag, x, y) {
+      const rs = set[view];
+      if (!rs) return null;
+      let best = null, bestD = Infinity;
+      for (let i = 0; i < rs.length; i++) {
+        const r = rs[i];
+        if (r[5] !== tag) continue;
+        const dx = x < r[1] ? r[1] - x : x > r[1] + r[3] ? x - r[1] - r[3] : 0;
+        const dy = y < r[2] ? r[2] - y : y > r[2] + r[4] ? y - r[2] - r[4] : 0;
+        if (dx === 0 && dy === 0) return r[0];
+        const d = Math.hypot(dx, dy);
+        if (d < bestD) { bestD = d; best = r[0]; }
+      }
+      return bestD <= snap ? best : null;
+    }
+    // world centroid + normal → region id, via the first binding whose Y range holds it
+    return function (part, c, n) {
+      for (let k = 0; k < part.bind.length; k++) {
+        const b = part.bind[k];
+        if (b.yMin != null && c[1] < b.yMin) continue;
+        if (b.yMax != null && c[1] >= b.yMax) continue;
+        const set = spec.plateSets[b.set]; if (!set) continue;
+        const q = toNative(b.frame, spec.mid, c[0], c[1]);
+        const X = q[0], Y = q[1], Z = c[2];
+        const tag = part.tag;
+        const foot = set.foot && set.foot.tags.indexOf(tag) >= 0 ? set.foot : null;
+        const tagBase = foot ? foot.as : tag;
+        if (foot) {
+          // Y is "down" in plate coordinates, so a sole faces +Y
+          const t = (Z - foot.zHeel) / (foot.zToe - foot.zHeel);           // 0 heel → 1 toe
+          if (n[1] > 0.5 && set.plant) {
+            const y2 = foot.plantY[0] + (foot.plantY[1] - foot.plantY[0]) * t; // [heel y, toe y]
+            return find(set, 'plant', tagBase, X, y2);
+          }
+          if (n[2] >= 0) {
+            const y2 = foot.antY[0] + (foot.antY[1] - foot.antY[0]) * t;
+            return find(set, 'ant', tagBase, X, y2);
+          }
+          return find(set, 'post', tagBase, 2 * spec.mid - X, Y);
+        }
+        if (n[2] >= 0) return find(set, 'ant', tagBase, X, Y);
+        return find(set, 'post', tagBase, 2 * spec.mid - X, Y);
+      }
+      return null;
+    };
+  }
+
+  /* ---------------------------------------------------------------- colour */
+  function hexToRgb(h) {
+    h = (h || '').trim();
+    if (h[0] === '#') h = h.slice(1);
+    if (h.length === 3) h = h.split('').map(c => c + c).join('');
+    const n = parseInt(h, 16);
+    if (isNaN(n)) return [128, 128, 128];
+    return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+  }
+  function cssVar(name, fallback) {
+    const v = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+    return v || fallback;
+  }
+
+  /* ---------------------------------------------------------------- viewer */
+  function Body3D(host, spec, opts) {
+    opts = opts || {};
+    const self = this;
+    const mesh = buildMesh(spec);
+    const V = mesh.V, F = mesh.F;
+
+
+    // bounds
+    let minY = Infinity, maxY = -Infinity, maxR = 0;
+    V.forEach(p => { minY = Math.min(minY, p[1]); maxY = Math.max(maxY, p[1]); });
+    const cy = (minY + maxY) / 2;
+    V.forEach(p => { maxR = Math.max(maxR, Math.hypot(p[0] - spec.mid, p[1] - cy, p[2])); });
+    const halfH = (maxY - minY) / 2;
+
+    // DOM
+    host.classList.add('b3d');
+    host.innerHTML =
+      '<canvas class="b3d-canvas" tabindex="0" role="img" aria-label="' + (opts.label || 'Rotatable 3-D body heat map') + '"></canvas>' +
+      '<div class="b3d-bar">' +
+        '<div class="b3d-views" role="group" aria-label="Preset views">' +
+          (spec.views || [['Front', 0, 0], ['Back', 180, 0], ['Left', -90, 0], ['Right', 90, 0]])
+            .map(v => '<button type="button" class="b3d-btn" data-yaw="' + v[1] + '" data-pitch="' + v[2] + '" data-zoom="' + (v[3] || 1) + '" data-focus="' + (v[4] == null ? '' : v[4]) + '">' + v[0] + '</button>').join('') +
+        '</div>' +
+        '<span class="b3d-hint">drag to rotate · scroll or pinch to zoom · click a zone</span>' +
+      '</div>';
+    const canvas = host.querySelector('canvas');
+    const ctx = canvas.getContext('2d');
+
+    // state
+    let yaw = deg(spec.yaw0 || 0), pitch = deg(spec.pitch0 || 0), zoom = spec.zoom0 || 1;
+    let focusY = null;        // plate-Y to centre on (null = figure centre)
+    let heat = {}, picked = null, hovered = null;
+    let colors = null, W = 0, H = 0, dpr = 1;
+    let frameReq = 0;
+    let frontSorted = [];     // faces drawn last frame, painter order (far → near)
+    let proj = null;          // projected 2-D points per vertex
+    const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    function readColors() {
+      shadeTable = null;
+      colors = {
+        heat: [cssVar('--heat-0', '#E4E8E0'), cssVar('--heat-1', '#E89272'),
+               cssVar('--heat-2', '#D85B3F'), cssVar('--heat-3', '#A31C14')].map(hexToRgb),
+        paper: cssVar('--paper', '#F1F3EF'),
+        surface: cssVar('--surface', '#FFFFFF'),
+        line: cssVar('--line-strong', '#BCC4B7'),
+        ink: cssVar('--ink', '#1B231F'),
+        accent: cssVar('--accent', '#1F6F63'),
+        dark: matchMedia('(prefers-color-scheme: dark)').matches
+      };
+      const t = document.documentElement.getAttribute('data-theme');
+      if (t === 'dark') colors.dark = true; else if (t === 'light') colors.dark = false;
+    }
+
+    function resize() {
+      const r = canvas.getBoundingClientRect();
+      dpr = Math.min(2, window.devicePixelRatio || 1);
+      W = Math.max(1, Math.round(r.width)); H = Math.max(1, Math.round(r.height));
+      canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+
+    /* ---- projection ---- */
+    function project() {
+      const cyaw = Math.cos(yaw), syaw = Math.sin(yaw), cp = Math.cos(pitch), sp = Math.sin(pitch);
+      const D = maxR * 3.2;                       // camera distance
+      const cyv = focusY == null ? cy : cy + (focusY - cy) * Math.min(1, Math.max(0, (zoom - 1) / 0.8));
+      const fit = Math.min(W / (maxR * 2.05), H / (halfH * 2.12));
+      const s = fit * zoom;
+      const ox = W / 2, oy = H / 2;
+      proj = new Array(V.length);
+      const depth = new Float64Array(V.length);
+      for (let i = 0; i < V.length; i++) {
+        const p = V[i];
+        const x = p[0] - spec.mid, y = -(p[1] - cyv), z = p[2];
+        const x1 = x * cyaw + z * syaw, z1 = -x * syaw + z * cyaw;
+        const y2 = y * cp - z1 * sp, z2 = y * sp + z1 * cp;
+        const f = D / (D - z2);
+        proj[i] = [ox + s * x1 * f, oy - s * y2 * f];
+        depth[i] = z2;
+      }
+      // rotate normals, cull, sort
+      const camz = D;
+      const front = [];
+      for (let i = 0; i < F.length; i++) {
+        const f = F[i], n = f.n, c = f.c;
+        const nx = n[0], ny = -n[1], nz = n[2];
+        const nx1 = nx * cyaw + nz * syaw, nz1 = -nx * syaw + nz * cyaw;
+        const ny2 = ny * cp - nz1 * sp, nz2 = ny * sp + nz1 * cp;
+        const x = c[0] - spec.mid, y = -(c[1] - cyv), z = c[2];
+        const x1 = x * cyaw + z * syaw, z1 = -x * syaw + z * cyaw;
+        const y2 = y * cp - z1 * sp, z2 = y * sp + z1 * cp;
+        // view vector from face to camera
+        const vx = -x1, vy = -y2, vz = camz - z2;
+        const dot = nx1 * vx + ny2 * vy + nz2 * vz;
+        f._front = dot > 0;
+        f._z = z2;
+        f._nv = [nx1, ny2, nz2];
+        if (f._front) front.push(f);
+      }
+      front.sort((a, b) => a._z - b._z);
+      frontSorted = front;
+    }
+
+    /* ---- draw ---- */
+    // light from the viewer's upper-left, fixed to the camera; shading is
+    // quantised to 24 steps so colour strings come from a small cached table
+    const LIGHT = [-0.42, 0.62, 0.66], STEPS = 24;
+    let shadeTable = null;
+    function buildShadeTable() {
+      shadeTable = colors.heat.concat([hexToRgb(colors.ink)]).map(rgb => {
+        const row = [];
+        for (let i = 0; i <= STEPS; i++) {
+          const d = i / STEPS;
+          const k = colors.dark ? 0.66 + 0.5 * d : 0.74 + 0.36 * d;
+          row.push('rgb(' + Math.min(255, rgb[0] * k | 0) + ',' + Math.min(255, rgb[1] * k | 0) + ',' + Math.min(255, rgb[2] * k | 0) + ')');
+        }
+        return row;
+      });
+    }
+    function shade(level, nv) {
+      if (!shadeTable) buildShadeTable();
+      const d = Math.max(0, nv[0] * LIGHT[0] + nv[1] * LIGHT[1] + nv[2] * LIGHT[2]);
+      return shadeTable[level][Math.round(d * STEPS)];
+    }
+
+    function draw() {
+      frameReq = 0;
+      if (!colors) readColors();
+      if (!W) resize();
+      project();
+      ctx.clearRect(0, 0, W, H);
+
+      // pass 1 — silhouette: edges whose neighbour is back-facing (or absent),
+      // stroked wide; pass 2 covers the inner half, leaving a clean outline
+      ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+      ctx.strokeStyle = colors.line; ctx.lineWidth = 3.2;
+      ctx.beginPath();
+      for (let i = 0; i < frontSorted.length; i++) {
+        const f = frontSorted[i], idx = f.v, nb = f.nb;
+        for (let k = 0; k < idx.length; k++) {
+          const g = nb[k] >= 0 ? F[nb[k]] : null;
+          if (g && g._front) continue;
+          const a = proj[idx[k]], b = proj[idx[(k + 1) % idx.length]];
+          ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]);
+        }
+      }
+      ctx.stroke();
+
+      // pass 2 — faces in painter order, then that face's boundary edges
+      for (let i = 0; i < frontSorted.length; i++) {
+        const f = frontSorted[i];
+        const lvl = f.rid ? (heat[f.rid] | 0) : 0;
+        ctx.fillStyle = f.tint ? shade(4, f._nv) : shade(clamp(lvl, 0, 3), f._nv);
+        pathOf(f, 0.45); ctx.fill();
+        const idx = f.v, nb = f.nb;
+        for (let k = 0; k < idx.length; k++) {
+          const g = nb[k] >= 0 ? F[nb[k]] : null;
+          const gr = g ? g.rid : null;
+          const gFront = !!(g && g._front);
+          let style = null, w = 0;
+          if (picked && ((f.rid === picked) !== (gFront && gr === picked))) { style = colors.accent; w = 2.2; }
+          else if (hovered && ((f.rid === hovered) !== (gFront && gr === hovered))) { style = colors.ink; w = 1.5; }
+          else if (gFront && gr !== f.rid) { style = colors.paper; w = 0.9; }
+          if (!style) continue;
+          const a = proj[idx[k]], b = proj[idx[(k + 1) % idx.length]];
+          ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]);
+          ctx.strokeStyle = style; ctx.lineWidth = w; ctx.stroke();
+        }
+      }
+    }
+
+    // polygon path, optionally grown by `grow` px away from its centre so
+    // neighbouring fills overlap and anti-aliasing leaves no hairline seams
+    function pathOf(f, grow) {
+      const idx = f.v;
+      let cx = 0, cy = 0;
+      if (grow) { for (let k = 0; k < idx.length; k++) { cx += proj[idx[k]][0]; cy += proj[idx[k]][1]; } cx /= idx.length; cy /= idx.length; }
+      ctx.beginPath();
+      for (let k = 0; k < idx.length; k++) {
+        let p = proj[idx[k]], x = p[0], y = p[1];
+        if (grow) { const dx = x - cx, dy = y - cy, d = Math.hypot(dx, dy) || 1; x += dx / d * grow; y += dy / d * grow; }
+        if (k === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+      }
+      ctx.closePath();
+    }
+
+    function request() { if (!frameReq) frameReq = requestAnimationFrame(draw); }
+
+    /* ---- picking ---- */
+    function pick(px, py) {
+      if (!proj) return null;
+      for (let i = frontSorted.length - 1; i >= 0; i--) {
+        const f = frontSorted[i];
+        if (inPoly(f.v, px, py)) return f;
+      }
+      return null;
+    }
+    function inPoly(idx, px, py) {
+      let inside = false;
+      for (let i = 0, j = idx.length - 1; i < idx.length; j = i++) {
+        const a = proj[idx[i]], b = proj[idx[j]];
+        if (((a[1] > py) !== (b[1] > py)) && (px < (b[0] - a[0]) * (py - a[1]) / (b[1] - a[1]) + a[0])) inside = !inside;
+      }
+      return inside;
+    }
+
+    /* ---- interaction ---- */
+    let dragging = false, moved = 0, lx = 0, ly = 0, pinch = null;
+    const pointers = new Map();
+    canvas.style.touchAction = 'none';
+
+    canvas.addEventListener('pointerdown', e => {
+      canvas.setPointerCapture(e.pointerId);
+      pointers.set(e.pointerId, [e.clientX, e.clientY]);
+      if (pointers.size === 2) {
+        const p = Array.from(pointers.values());
+        pinch = { d: Math.hypot(p[0][0] - p[1][0], p[0][1] - p[1][1]), z: zoom };
+        dragging = false; return;
+      }
+      dragging = true; moved = 0; lx = e.clientX; ly = e.clientY;
+      canvas.classList.add('grabbing');
+    });
+    canvas.addEventListener('pointermove', e => {
+      if (pointers.has(e.pointerId)) pointers.set(e.pointerId, [e.clientX, e.clientY]);
+      if (pinch && pointers.size === 2) {
+        const p = Array.from(pointers.values());
+        const d = Math.hypot(p[0][0] - p[1][0], p[0][1] - p[1][1]);
+        zoom = clamp(pinch.z * d / pinch.d, 0.6, 3.2); request(); return;
+      }
+      if (dragging) {
+        const dx = e.clientX - lx, dy = e.clientY - ly;
+        moved += Math.abs(dx) + Math.abs(dy);
+        lx = e.clientX; ly = e.clientY;
+        yaw += dx * 0.011; pitch = clamp(pitch + dy * 0.008, -deg(88), deg(88));
+        request(); return;
+      }
+      hoverAt(e);
+    });
+    function endPointer(e) {
+      pointers.delete(e.pointerId);
+      if (pointers.size < 2) pinch = null;
+      if (!dragging) return;
+      dragging = false; canvas.classList.remove('grabbing');
+      if (moved < 5 && e.type === 'pointerup') {
+        const f = pick(...local(e));
+        if (opts.onPick) opts.onPick(f ? f.rid : null);
+      }
+    }
+    canvas.addEventListener('pointerup', endPointer);
+    canvas.addEventListener('pointercancel', endPointer);
+    canvas.addEventListener('pointerleave', e => {
+      if (hovered) { hovered = null; request(); if (opts.onHover) opts.onHover(null); }
+    });
+    canvas.addEventListener('wheel', e => {
+      e.preventDefault();
+      zoom = clamp(zoom * (e.deltaY < 0 ? 1.1 : 0.9), 0.6, 3.2);
+      request();
+    }, { passive: false });
+    canvas.addEventListener('keydown', e => {
+      const k = e.key;
+      let used = true;
+      if (k === 'ArrowLeft') yaw -= deg(15);
+      else if (k === 'ArrowRight') yaw += deg(15);
+      else if (k === 'ArrowUp') pitch = clamp(pitch - deg(10), -deg(88), deg(88));
+      else if (k === 'ArrowDown') pitch = clamp(pitch + deg(10), -deg(88), deg(88));
+      else if (k === '+' || k === '=') zoom = clamp(zoom * 1.1, 0.6, 3.2);
+      else if (k === '-') zoom = clamp(zoom * 0.9, 0.6, 3.2);
+      else used = false;
+      if (used) { e.preventDefault(); request(); }
+    });
+    function local(e) {
+      const r = canvas.getBoundingClientRect();
+      return [e.clientX - r.left, e.clientY - r.top];
+    }
+    let hoverPending = null, hoverQueued = false;
+    function hoverAt(e) {
+      hoverPending = e;
+      if (hoverQueued) return;
+      hoverQueued = true;
+      requestAnimationFrame(() => {
+        const ev = hoverPending; hoverQueued = false;
+        const f = pick(...local(ev));
+        const rid = f ? f.rid : null;
+        canvas.style.cursor = rid ? 'pointer' : 'grab';
+        if (rid !== hovered) { hovered = rid; request(); }
+        if (opts.onHover) opts.onHover(rid, ev.clientX, ev.clientY);
+      });
+    }
+
+    // preset views
+    host.querySelectorAll('.b3d-btn').forEach(b => {
+      b.addEventListener('click', () => {
+        focusY = b.dataset.focus === '' ? null : +b.dataset.focus;
+        animateTo(deg(+b.dataset.yaw), deg(+b.dataset.pitch), +b.dataset.zoom || 1);
+      });
+    });
+    function animateTo(ty, tp, tz) {
+      // shortest way round
+      const dy0 = ((ty - yaw) % TAU + TAU * 1.5) % TAU - Math.PI;
+      const y0 = yaw, p0 = pitch, dp = tp - pitch, z0 = zoom, dz = tz - zoom;
+      if (reduced) { yaw = ty; pitch = tp; zoom = tz; request(); return; }
+      const t0 = performance.now(), dur = 340;
+      (function step(now) {
+        const t = clamp((now - t0) / dur, 0, 1), e = 1 - Math.pow(1 - t, 3);
+        yaw = y0 + dy0 * e; pitch = p0 + dp * e; zoom = z0 + dz * e;
+        draw();
+        if (t < 1) requestAnimationFrame(step);
+      })(t0);
+    }
+
+    // theme + size changes
+    const ro = 'ResizeObserver' in window ? new ResizeObserver(() => { resize(); request(); }) : null;
+    if (ro) ro.observe(canvas); else window.addEventListener('resize', () => { resize(); request(); });
+    const mo = new MutationObserver(() => { colors = null; request(); });
+    mo.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+    matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => { colors = null; request(); });
+
+    /* ---- public API ---- */
+    this.setHeat = function (map, pickedRegion) {
+      heat = map || {}; picked = pickedRegion || null; request();
+    };
+    this.setHover = function (rid) { if (rid !== hovered) { hovered = rid; request(); } };
+    this.redraw = function () { colors = null; resize(); request(); };
+    this.regions = function () { const s = new Set(); F.forEach(f => f.rid && s.add(f.rid)); return s; };
+    this.faceCount = F.length;
+    this.view = function (y, p, z, fy) { yaw = deg(y); pitch = deg(p || 0); if (z) zoom = z; focusY = fy == null ? null : fy; request(); };
+    this.stats = function () {
+      const per = {}; F.forEach(f => { const k = f.rid || '(none)'; per[k] = (per[k] || 0) + 1; }); return per;
+    };
+    this._mesh = mesh; this._draw = draw;
+
+    resize(); request();
+  }
+
+  global.Body3D = Body3D;
+  global.Body3D.buildMesh = buildMesh;
+})(typeof window !== 'undefined' ? window : globalThis);
+
+</script>
+<script>
+const DATA = {"regions":{"vertex":"Vertex / top of head","frontal":"Frontal / supraorbital / retro-orbital","temporal":"Temporal / side of head","ear":"Ear / retromastoid","face":"Face / cheek / jaw","occiput":"Occiput","suboccipital":"Suboccipital","neck-ant":"Anterior neck / throat","neck-upper":"Upper posterior neck","neck-mid":"Mid posterior neck","neck-lower":"Lower posterior neck","shoulder-top":"Top of shoulder / suprascapular","scap-sup":"Superior angle of scapula","interscap":"Interscapular / upper thoracic paraspinal","scap-border":"Vertebral border of scapula","scap-inf":"Inferior angle of scapula","chest-ant":"Anterior chest / precordial / breast","chest-lat":"Lateral chest wall / axillary line","epigastric":"Epigastric / upper abdomen","thoracic-mid":"Mid thoracic paraspinal (T5–T8)","flank":"Flank / lateral trunk","deltoid-ant":"Anterior deltoid / anterior shoulder","deltoid-lat":"Lateral deltoid / lateral shoulder","deltoid-post":"Posterior deltoid / posterior shoulder","arm-ant":"Anterior / lateral upper arm","arm-med":"Medial upper arm","arm-post":"Posterior upper arm","elbow-lat":"Lateral epicondyle / lateral elbow","elbow-ant":"Antecubital / anterior elbow","elbow-med":"Medial epicondyle / medial elbow","elbow-post":"Olecranon / posterior elbow","forearm-rad":"Dorsoradial forearm","forearm-volar":"Volar forearm","forearm-uln":"Ulnar forearm","forearm-dors":"Dorsal forearm","wrist":"Wrist","thenar":"Thumb / thenar eminence","palm":"Palm","digits-rad":"Radial digits (index, middle)","digits-uln":"Ulnar digits (ring, little)","hand-dors":"Dorsum of hand","web-space":"Thumb–index web space","tl-junction":"Thoracolumbar junction","lumbar":"Lumbar paraspinal","lumbar-midline":"Lumbar midline","iliac-crest":"Iliac crest","si-joint":"Sacroiliac joint region","sacrum":"Sacrum","coccyx":"Coccyx","buttock-upper":"Upper buttock","buttock-lower":"Lower buttock / gluteal fold","perineum":"Perineum / pelvic floor","lower-abdomen":"Lower abdomen","groin":"Groin / inguinal","pubic":"Pubic / adductor origin","troch":"Greater trochanter / lateral hip","hip-ant":"Anterior hip","thigh-ant":"Anterior thigh","thigh-med":"Medial thigh","thigh-lat":"Lateral thigh","thigh-post":"Posterior thigh","knee-ant":"Anterior knee / patella","knee-med":"Medial knee","knee-lat":"Lateral knee","knee-post":"Posterior knee / popliteal fossa","leg-ant":"Anterior shin","leg-lat":"Lateral leg","leg-med":"Medial leg","calf":"Posterior calf","achilles":"Achilles region","ankle-ant":"Anterior ankle","ankle-med":"Medial malleolus","ankle-lat":"Lateral malleolus","heel-plantar":"Plantar heel","arch":"Medial arch","forefoot-plant":"Plantar forefoot / metatarsal heads","foot-dorsum":"Dorsum of foot","great-toe":"Great toe / first web space","lat-toes":"Lateral toes"},"structures":[{"id":"ue-facet-c0c1","name":"C0–C1 atlanto-occipital joint","cat":"facet","tier":"A","source":"Dreyfuss, Michaelsen & Fletcher, Spine 1994 — provocative intra-articular injection, 5 asymptomatic volunteers.","note":"Consistently suboccipital; may extend cephalad toward the vertex and occasionally the frontal region. Very small volunteer sample (N=5) — treat the zone as indicative, not precise.","zones":{"suboccipital":3,"occiput":2,"vertex":1,"frontal":1,"neck-upper":2},"lookalikes":"","q":"upper"},{"id":"ue-facet-c1c2","name":"C1–C2 lateral atlanto-axial joint","cat":"facet","tier":"A","source":"Dreyfuss et al., Spine 1994 (N=5 volunteers); clinical validation by controlled blocks — Aprill, Axinn & Bogduk, Cephalalgia 2002 (21/34 patients confirmed).","note":"Discrete unilateral pain at the occipito-cervical junction, retromastoid area and upper cervical region. Aprill's clinical criteria (occipital pain + focal C1 transverse process tenderness + restricted rotation) had only 60% positive predictive value — distribution alone cannot substitute for a diagnostic block.","zones":{"occiput":3,"suboccipital":3,"ear":2,"neck-upper":2},"lookalikes":"","q":"upper"},{"id":"ue-facet-c2c3","name":"C2–C3 facet joint (third occipital nerve)","cat":"facet","tier":"A","source":"Dwyer, Aprill & Bogduk, Spine 1990 — volunteer distension; validated clinically in Aprill et al. 1990; Lord et al., JNNP 1994 — controlled double-blind blocks.","note":"Upper neck pain extending into the head — toward the ear, vertex, forehead or eye. The most common source of headache after whiplash: third occipital nerve headache found in 27% of whiplash patients overall and 53% of those whose dominant complaint was headache.","zones":{"neck-upper":3,"occiput":3,"suboccipital":2,"ear":2,"vertex":2,"frontal":1,"temporal":1},"lookalikes":"Cervicogenic headache from C1–2; occipital neuralgia; migraine","q":"upper"},{"id":"ue-facet-c3c4","name":"C3–C4 facet joint","cat":"facet","tier":"A","source":"Dwyer, Aprill & Bogduk, Spine 1990 — volunteer distension; corroborated in symptomatic patients by Fukui et al., Pain 1996.","note":"Neck pain from the suboccipital region down to the lower neck — characteristically WITHOUT shoulder involvement. That absence is the useful discriminator from C4–5 and below.","zones":{"neck-upper":3,"neck-mid":3,"neck-lower":2,"occiput":2,"suboccipital":1},"lookalikes":"","q":"upper"},{"id":"ue-facet-c4c5","name":"C4–C5 facet joint","cat":"facet","tier":"A","source":"Dwyer, Aprill & Bogduk, Spine 1990 — volunteer distension; Fukui et al., Pain 1996.","note":"More caudally located than C3–4: top of the shoulder and the lower part of the neck. Fukui found lower posterior cervical in 76% and suprascapular in 43% of symptomatic patients.","zones":{"neck-lower":3,"neck-mid":2,"shoulder-top":3,"scap-sup":1},"lookalikes":"","q":"upper"},{"id":"ue-facet-c5c6","name":"C5–C6 facet joint","cat":"facet","tier":"A","source":"Dwyer, Aprill & Bogduk, Spine 1990 — volunteer distension; Fukui et al., Pain 1996; prevalence data from Cooper, Bailey & Bogduk, Pain Medicine 2007.","note":"Lower neck, top of the scapula and the shoulder region above the level of the scapular spine. Together with C2–3, one of the two most frequently implicated levels in chronic neck pain (~35% of cases).","zones":{"neck-lower":3,"shoulder-top":3,"scap-sup":2,"deltoid-post":1,"interscap":1},"lookalikes":"","q":"upper"},{"id":"ue-facet-c6c7","name":"C6–C7 facet joint","cat":"facet","tier":"A","source":"Dwyer, Aprill & Bogduk, Spine 1990 — volunteer distension; Fukui et al., Pain 1996.","note":"Extends caudally as far as the scapular spine. Fukui: superior scapular angle 48%, mid-scapular 41%, lower posterior cervical 33%.","zones":{"scap-sup":3,"interscap":3,"neck-lower":2,"shoulder-top":2,"scap-border":1},"lookalikes":"","q":"upper"},{"id":"ue-facet-c7t1","name":"C7–T1 facet joint","cat":"facet","tier":"B","source":"Fukui et al., Pain 1996 — intra-articular contrast/dorsal ramus stimulation in 61 SYMPTOMATIC patients. Not covered by the Dwyer volunteer study.","note":"Mid-scapular region in 86% of patients; superior angle of scapula in 28%. Note this level rests on patient-provocation data only — a tier below the C2–3 to C6–7 volunteer maps.","zones":{"interscap":3,"scap-border":2,"scap-sup":2,"neck-lower":1},"lookalikes":"","q":"upper"},{"id":"ue-facet-tupper","name":"Upper thoracic facet joints (T1–T4)","cat":"facet","tier":"B","source":"Fukui et al., Reg Anesth 1997 (symptomatic patients, T1–2/T2–3); Dreyfuss, Tibiletti & Dreyer, Spine 1994 (volunteers, from T3–4 down).","note":"Local paraspinal pain lateral to the joint, from about half a segment above to a full segment below the joint of origin. Does not cross the midline and does not reliably distinguish adjacent levels.","zones":{"interscap":3,"scap-border":2,"scap-sup":1,"neck-lower":1},"lookalikes":"","q":"upper"},{"id":"ue-facet-tmid","name":"Mid thoracic facet joints (T5–T8)","cat":"facet","tier":"A","source":"Dreyfuss, Tibiletti & Dreyer, Spine 1994 — distension in asymptomatic volunteers (T3–4 to T10–11).","note":"Local paraspinal zone lateral to the joint, half a segment above to one segment below. IMPORTANT: 27% of injected joints produced no pain at all, and the resulting patterns overlap heavily with costotransverse joint and soft-tissue patterns — thoracic maps are far less segment-discriminating than the cervical ones.","zones":{"thoracic-mid":3,"interscap":2,"flank":1},"lookalikes":"","q":"upper"},{"id":"ue-facet-tlower","name":"Lower thoracic facet joints (T9–T12)","cat":"facet","tier":"B","source":"Dreyfuss et al., Spine 1994 — volunteers, but only as far down as T10–11; Fukui et al., Reg Anesth 1997 — T11–12, symptomatic patients only.","note":"Paraspinal pain at and just below the segment, with modest lateral spread into the flank. Graded B rather than A because the range is split: T9–10 and T10–11 have volunteer-provocation evidence, but T11–12 rests on symptomatic-patient data alone. Same caveat as the rest of the thoracic spine: granular per-segment diagrams circulating in handouts are illustrative composites, not something either primary study reports.","zones":{"tl-junction":3,"thoracic-mid":2,"flank":2,"lumbar":1,"lumbar-midline":1},"lookalikes":"","q":"upper"},{"id":"ue-disc-c2c3","name":"C2–C3 intervertebral disc","cat":"disc","tier":"B","source":"Schellhas et al., AJNR 2000 — provocation discography, 40 chronic head/neck pain patients; Slipman et al., Spine J 2005 (41 subjects, 101 maps).","note":"Head pain is disproportionately a C2–3 phenomenon: 19/40 reported head pain (occipital most common, then temporal, then parietal) and 4 patients had EXCLUSIVELY head pain with no neck component. 80% of painful C2–3 discs looked normal on MRI.","zones":{"occiput":3,"neck-upper":3,"suboccipital":2,"temporal":2,"vertex":2,"face":1},"lookalikes":"","q":"upper"},{"id":"ue-disc-c3c4","name":"C3–C4 intervertebral disc","cat":"disc","tier":"B","source":"Slipman et al., Spine J 2005 (19 maps); Grubb & Kelly, Spine 2000.","note":"Neck, subocciput, trapezius, anterior neck, face, shoulder, interscapular and limb — one of the broadest referral fields of any cervical disc.","zones":{"neck-mid":3,"neck-upper":2,"shoulder-top":2,"interscap":2,"suboccipital":1,"neck-ant":1,"face":1,"deltoid-ant":1},"lookalikes":"","q":"upper"},{"id":"ue-disc-c4c5","name":"C4–C5 intervertebral disc","cat":"disc","tier":"B","source":"Slipman et al., Spine J 2005 (27 maps); Grubb & Kelly, Spine 2000.","note":"Neck, shoulder, interscapular, trapezius, extremity, face, chest, subocciput. Grubb & Kelly found anterior chest wall referral begins at this level.","zones":{"neck-lower":3,"shoulder-top":3,"interscap":2,"scap-sup":2,"chest-ant":1,"deltoid-ant":1,"arm-ant":1},"lookalikes":"","q":"upper"},{"id":"ue-disc-c5c6","name":"C5–C6 intervertebral disc","cat":"disc","tier":"B","source":"Slipman et al., Spine J 2005 (27 maps); Grubb & Kelly, Spine 2000.","note":"Neck, trapezius, interscapular, subocciput, anterior neck, chest, face. Bilateral pain occurred in 30–62% of discs at every level — laterality of pain does NOT indicate laterality of pathology.","zones":{"neck-lower":3,"shoulder-top":3,"interscap":2,"chest-ant":2,"scap-sup":2,"deltoid-ant":1,"arm-ant":1},"lookalikes":"","q":"upper"},{"id":"ue-disc-c6c7","name":"C6–C7 intervertebral disc","cat":"disc","tier":"B","source":"Slipman et al., Spine J 2005 (16 maps); Grubb & Kelly, Spine 2000.","note":"Neck, interscapular, trapezius, shoulder, extremity, subocciput. Arm referral is most consistent at this level and C5–6.","zones":{"interscap":3,"neck-lower":2,"shoulder-top":2,"scap-border":2,"arm-ant":1,"forearm-rad":1,"chest-ant":1},"lookalikes":"","q":"upper"},{"id":"ue-disc-c7t1","name":"C7–T1 intervertebral disc","cat":"disc","tier":"B","source":"Grubb & Kelly, Spine 2000; Slipman et al., Spine J 2005 (only 2 maps at this level).","note":"Mid-posterior neck through to the mid-thoracic spine, and the interscapular region. Very few mapped cases — the weakest-supported of the cervical disc levels.","zones":{"interscap":3,"neck-lower":2,"thoracic-mid":2},"lookalikes":"","q":"upper"},{"id":"ue-root-c4","name":"C4 nerve root (dynatome)","cat":"root","tier":"B","source":"Slipman et al., Spine 1998 — fluoroscopically guided cervical nerve root stimulation, 134 stimulations in 87 subjects (only 4 at C4).","note":"Base of neck and top of shoulder. Only 4 stimulations at this level — the least-supported root map.","zones":{"neck-lower":3,"shoulder-top":3,"scap-sup":1},"lookalikes":"","q":"upper"},{"id":"ue-root-c5","name":"C5 nerve root (dynatome)","cat":"root","tier":"B","source":"Slipman et al., Spine 1998 (14 stimulations at C5).","note":"Lateral shoulder and lateral arm. NOTE: dynatomal (symptom) maps are measurably broader than textbook dermatomes — the expected pattern held in as little as 54% of stimulations.","zones":{"deltoid-lat":3,"shoulder-top":2,"arm-ant":2,"neck-lower":2,"deltoid-ant":1},"lookalikes":"","q":"upper"},{"id":"ue-root-c6","name":"C6 nerve root (dynatome)","cat":"root","tier":"B","source":"Slipman et al., Spine 1998 (43 stimulations at C6).","note":"Lateral arm, dorsoradial forearm, thumb and index finger — but ~30% of C6 stimulations also produced LITTLE FINGER symptoms, classically a C8 finding. Intrathecal anastomoses between adjacent dorsal roots (up to ~61%) blur segment-specific territories.","zones":{"forearm-rad":3,"thenar":3,"digits-rad":2,"arm-ant":2,"deltoid-lat":2,"neck-lower":2,"digits-uln":1,"scap-sup":1},"lookalikes":"C7 root; radial tunnel; de Quervain's; carpal tunnel","q":"upper"},{"id":"ue-root-c7","name":"C7 nerve root (dynatome)","cat":"root","tier":"B","source":"Slipman et al., Spine 1998 (52 stimulations at C7 — the largest subgroup).","note":"Posterior arm, dorsal forearm, middle finger, and prominent interscapular/scapular referral. Proximal (scapular) referral is far more common in dynatomal maps than dermatome charts suggest.","zones":{"forearm-dors":3,"digits-rad":3,"arm-post":2,"interscap":2,"scap-border":2,"hand-dors":2,"elbow-post":1},"lookalikes":"","q":"upper"},{"id":"ue-root-c8","name":"C8 nerve root (dynatome)","cat":"root","tier":"B","source":"Slipman et al., Spine 1998 (21 stimulations at C8).","note":"Ulnar forearm, ring and little fingers — but ~24% of C8 stimulations produced INDEX FINGER symptoms, classically a C6/C7 finding. Symptom location does not reliably localise the root.","zones":{"digits-uln":3,"forearm-uln":3,"arm-med":2,"elbow-med":2,"interscap":1,"digits-rad":1},"lookalikes":"Cubital tunnel; Guyon's canal; neurogenic thoracic outlet syndrome","q":"upper"},{"id":"ue-lig-cerv-isl","name":"Cervical interspinous ligaments","cat":"ligament","tier":"C","source":"Kellgren, Clin Sci 1939 — hypertonic saline injection in volunteers; replicated in principle by Feinstein et al. 1954.","note":"Deep, diffuse, segmentally-organised ache in the neck and shoulder girdle that does NOT follow dermatomes. Foundational but small-N, non-blinded 1930s–50s work; Inman & Saunders noted the resulting maps 'could not be given with any great precision'.","zones":{"neck-mid":3,"neck-lower":3,"shoulder-top":2,"interscap":2,"occiput":1},"lookalikes":"","q":"upper"},{"id":"ue-lig-thor-isl","name":"Thoracic interspinous ligaments","cat":"ligament","tier":"C","source":"Kellgren, Clin Sci 1939; Feinstein et al. 1954.","note":"Segmental paraspinal ache with lateral spread around the chest wall. Superficial structures (supraspinous ligament, spinous process) give sharply localised pain instead — the depth of the structure, not its level, determines whether pain refers.","zones":{"interscap":2,"thoracic-mid":3,"tl-junction":2,"flank":2,"chest-lat":1},"lookalikes":"","q":"upper"},{"id":"ue-joint-acj","name":"Acromioclavicular joint","cat":"joint","tier":"A","source":"Gerber, Galantay & Hersche, JSES 1998 — hypertonic saline injection mapping in asymptomatic volunteers. (Sample size not verifiable from open sources.)","note":"Burning pain over the joint itself, deep in the supraspinatus fossa and upper trapezius, sometimes extending to the anterolateral deltoid and anterolateral neck. Can convincingly mimic cervical or trapezius myofascial pain.","zones":{"shoulder-top":3,"scap-sup":2,"deltoid-ant":2,"neck-lower":1,"deltoid-lat":1},"lookalikes":"Upper trapezius myofascial pain; C4–5/C5–6 facet; cervical radiculopathy","q":"upper"},{"id":"ue-joint-subacromial","name":"Subacromial space / bursa","cat":"joint","tier":"A","source":"Gerber, Galantay & Hersche, JSES 1998 — hypertonic saline injection in asymptomatic volunteers.","note":"Intense pain at the lateral border of the acromion and over the lateral deltoid — a more focal and more distal pattern than AC joint referral. This is the classic 'impingement' distribution.","zones":{"deltoid-lat":3,"shoulder-top":2,"arm-ant":1},"lookalikes":"C5 radiculopathy; supraspinatus/infraspinatus myofascial referral; axillary nerve entrapment","q":"upper"},{"id":"ue-m-upper-trap","name":"Upper trapezius","cat":"muscle","tier":"C","source":"Zone map: Travell & Simons Vol. 1 (clinical observation). Referral DIRECTION separately corroborated by controlled hypertonic saline injection in healthy volunteers (Graven-Nielsen, Arendt-Nielsen et al.).","note":"Posterolateral neck up to the temple — the classic unilateral 'tension headache' pattern — and the angle of the jaw. Spillover to occiput and mastoid. One of only two muscles here whose referral DIRECTION has independent experimental support; the grade stays C because the mapped zone borders still come from clinical observation, and the saline work corroborates direction, not extent.","zones":{"neck-lower":3,"neck-mid":2,"temporal":3,"face":2,"occiput":2,"shoulder-top":2,"ear":1},"lookalikes":"C2–3 facet; cervicogenic headache; migraine","q":"upper"},{"id":"ue-m-mid-trap","name":"Middle trapezius","cat":"muscle","tier":"C","source":"Travell & Simons Vol. 1.","note":"Superficial burning ache between the vertebral border of the scapula and the spine, locally over C7–T3.","zones":{"interscap":3,"scap-border":2,"shoulder-top":1,"neck-lower":1},"lookalikes":"","q":"upper"},{"id":"ue-m-low-trap","name":"Lower trapezius","cat":"muscle","tier":"C","source":"Travell & Simons Vol. 1.","note":"Local ache at the T6–T9 paraspinal origin and over the top of the shoulder, with spillover to the base of the neck and mastoid — Travell & Simons specifically flag this 'far' referral as atypical.","zones":{"thoracic-mid":3,"shoulder-top":2,"interscap":2,"neck-lower":2,"occiput":1},"lookalikes":"","q":"upper"},{"id":"ue-m-levator-scap","name":"Levator scapulae","cat":"muscle","tier":"C","source":"Travell & Simons Vol. 1.","note":"Angle of the neck (the neck–shoulder junction) and along the vertebral border of the scapula to its inferior angle. Classically limits cervical rotation toward the painful side.","zones":{"neck-lower":3,"shoulder-top":2,"scap-border":3,"scap-sup":2,"deltoid-post":1},"lookalikes":"","q":"upper"},{"id":"ue-m-scm","name":"Sternocleidomastoid (both heads)","cat":"muscle","tier":"C","source":"Travell & Simons Vol. 1.","note":"Sternal head: vertex, cheek/malar region, supraorbital ridge, deep in the ear, pharynx (sore-throat sensation), sternum. Clavicular head: bilateral frontal headache, deep ear pain, plus autonomic phenomena (postural dizziness, disequilibrium, tinnitus, lacrimation) that are a hallmark feature.","zones":{"vertex":3,"face":3,"frontal":3,"ear":3,"temporal":2,"neck-ant":2,"chest-ant":1},"lookalikes":"Trigeminal neuralgia; TMD; cervicogenic dizziness; sinus headache","q":"upper"},{"id":"ue-m-scalenes","name":"Scalenes (anterior / middle / posterior)","cat":"muscle","tier":"C","source":"Travell & Simons Vol. 1.","note":"Anterior/pectoral chest wall, vertebral border of scapula, and down the radial forearm to thumb and index finger — closely mimics C6 radiculopathy. Posterior scalene skews more interscapular.","zones":{"chest-ant":3,"scap-border":3,"forearm-rad":3,"thenar":2,"digits-rad":2,"deltoid-ant":2,"arm-ant":2,"interscap":2},"lookalikes":"C6 radiculopathy; neurogenic thoracic outlet syndrome; carpal tunnel","q":"upper"},{"id":"ue-m-splenius-cap","name":"Splenius capitis","cat":"muscle","tier":"C","source":"Travell & Simons Vol. 1.","note":"A 'boring' pain focused at the very top of the head. Classically no frontal or ocular involvement — that absence distinguishes it from sternocleidomastoid.","zones":{"vertex":3,"neck-upper":1},"lookalikes":"","q":"upper"},{"id":"ue-m-splenius-cerv","name":"Splenius cervicis","cat":"muscle","tier":"C","source":"Travell & Simons Vol. 1.","note":"Retro-orbital pain (behind the eye) and the angle of the neck/occiput, with reported ipsilateral blurred vision as a concomitant.","zones":{"frontal":3,"occiput":3,"neck-upper":2,"neck-lower":2,"shoulder-top":1},"lookalikes":"","q":"upper"},{"id":"ue-m-suboccipitals","name":"Suboccipital group","cat":"muscle","tier":"C","source":"Travell & Simons Vol. 1.","note":"Diffuse, deep, band- or 'halo'-like pain from the occiput over the top of the head toward the temple and eye. Travell & Simons note this pattern does not map to a crisp cutaneous zone.","zones":{"suboccipital":3,"occiput":3,"temporal":2,"vertex":2,"frontal":2},"lookalikes":"","q":"upper"},{"id":"ue-m-rhomboids","name":"Rhomboid major / minor","cat":"muscle","tier":"C","source":"Travell & Simons Vol. 1.","note":"Superficial, localised ache along the vertebral border of the scapula. One of the few patterns with essentially NO spillover and no projection into the arm — that confinement is the diagnostic clue.","zones":{"scap-border":3,"interscap":2},"lookalikes":"","q":"upper"},{"id":"ue-m-supraspinatus","name":"Supraspinatus","cat":"muscle","tier":"C","source":"Travell & Simons Vol. 1.","note":"Deep, boring ache centred over the mid-deltoid, spilling down the arm and forearm, occasionally to the wrist.","zones":{"deltoid-lat":3,"shoulder-top":2,"arm-ant":2,"elbow-lat":2,"forearm-rad":1,"wrist":1},"lookalikes":"Subacromial impingement; C5 radiculopathy","q":"upper"},{"id":"ue-m-infraspinatus","name":"Infraspinatus","cat":"muscle","tier":"C","source":"Zone map: Travell & Simons Vol. 1. Referral direction separately corroborated by hypertonic saline injection in healthy volunteers producing referred pain in the ipsilateral upper arm (Leffler et al., Eur J Pain 2000).","note":"Deep ache in the ANTERIOR shoulder/deltoid — the single most classic 'shoulder pain' myofascial pattern. Spillover down the lateral arm and radial forearm, plus local pain at the vertebral border of the scapula. Characteristically painful at rest and prevents sleeping on the affected side. The experimental corroboration covers only the arm component, not the anterior-deltoid, forearm or scapular zones, so the grade stays C with the rest of the myofascial maps.","zones":{"deltoid-ant":3,"deltoid-lat":2,"arm-ant":2,"forearm-rad":2,"scap-border":2,"digits-rad":1,"shoulder-top":1},"lookalikes":"C5 radiculopathy (has weakness/reflex change); subacromial bursitis (painful arc); AC joint","q":"upper"},{"id":"ue-m-teres-minor","name":"Teres minor","cat":"muscle","tier":"C","source":"Travell & Simons Vol. 1.","note":"A small, circumscribed patch of deep ache over the posterior deltoid near the axillary scapular border. Notably does NOT radiate — the confinement is the clue.","zones":{"deltoid-post":3},"lookalikes":"","q":"upper"},{"id":"ue-m-teres-major","name":"Teres major","cat":"muscle","tier":"C","source":"Travell & Simons Vol. 1.","note":"Posterior deltoid and the inferior angle of the scapula, spilling down the back of the arm toward the elbow.","zones":{"deltoid-post":3,"scap-inf":2,"arm-post":2,"elbow-post":1},"lookalikes":"","q":"upper"},{"id":"ue-m-subscapularis","name":"Subscapularis","cat":"muscle","tier":"C","source":"Travell & Simons Vol. 1.","note":"Severe deep pain over the posterior shoulder and scapula — the 'shoulder holster' pattern — with a distinctive circumferential band around the wrist in severe cases. Strongly associated with frozen-shoulder-type restriction.","zones":{"deltoid-post":3,"scap-inf":2,"scap-border":2,"arm-post":2,"wrist":2},"lookalikes":"Adhesive capsulitis; posterior labral pathology","q":"upper"},{"id":"ue-m-deltoid","name":"Deltoid (anterior / posterior)","cat":"muscle","tier":"C","source":"Travell & Simons Vol. 1.","note":"Localised to the involved third of the muscle itself, spreading only into the adjacent upper arm. Unusual among shoulder muscles for NOT projecting distal to the elbow.","zones":{"deltoid-ant":3,"deltoid-post":3,"deltoid-lat":2,"arm-ant":1,"arm-post":1},"lookalikes":"","q":"upper"},{"id":"ue-m-lats","name":"Latissimus dorsi","cat":"muscle","tier":"C","source":"Travell & Simons Vol. 1.","note":"Constant ache over the inferior angle of the scapula and mid-back (the 'cape' of pain), spilling down the medial/posterior arm to the medial epicondyle and into the ring and little fingers.","zones":{"scap-inf":3,"thoracic-mid":2,"arm-med":2,"arm-post":2,"elbow-med":2,"forearm-uln":1,"digits-uln":2},"lookalikes":"C8 radiculopathy; cubital tunnel","q":"upper"},{"id":"ue-m-pec-major","name":"Pectoralis major","cat":"muscle","tier":"C","source":"Travell & Simons Vol. 1.","note":"Anterior chest wall and breast. Clinically important: sternal-head trigger points near the 5th–6th costal cartilage can produce precordial pain and arrhythmia-like sensations that mimic cardiac disease — a well-documented diagnostic pitfall. Spillover down the medial arm to the ulnar digits.","zones":{"chest-ant":3,"deltoid-ant":2,"arm-med":2,"elbow-med":2,"forearm-uln":1,"digits-uln":2},"lookalikes":"Angina / cardiac pain (EXCLUDE FIRST); costochondritis; C8–T1 radiculopathy","q":"upper"},{"id":"ue-m-pec-minor","name":"Pectoralis minor","cat":"muscle","tier":"C","source":"Travell & Simons Vol. 1.","note":"Anterior chest and shoulder below the clavicle, referring down the medial arm and forearm to the ulnar three digits — overlapping the ulnar/thoracic outlet pattern.","zones":{"chest-ant":3,"deltoid-ant":2,"arm-med":2,"forearm-uln":2,"digits-uln":2},"lookalikes":"Neurogenic thoracic outlet syndrome (subcoracoid space); C8 radiculopathy","q":"upper"},{"id":"ue-m-serratus-ant","name":"Serratus anterior","cat":"muscle","tier":"C","source":"Travell & Simons Vol. 1.","note":"Lateral chest wall in the mid-axillary line — the classic 'stitch in the side' — wrapping to the inferior scapular angle and down the medial arm to the ulnar forearm and digits. Often accompanied by air hunger / difficulty taking a deep breath.","zones":{"chest-lat":3,"scap-inf":2,"arm-med":2,"forearm-uln":1,"digits-uln":1,"chest-ant":1},"lookalikes":"","q":"upper"},{"id":"ue-m-serratus-post-sup","name":"Serratus posterior superior","cat":"muscle","tier":"C","source":"Travell & Simons Vol. 1.","note":"Deep, poorly localised ache UNDER the scapula, referring down the posterior arm to the ulnar forearm, hand and little finger, with occasional numbness in a C8–T1 distribution. The 'ache I can't reach'.","zones":{"scap-border":3,"scap-inf":2,"deltoid-post":2,"arm-post":2,"forearm-uln":2,"digits-uln":2,"hand-dors":1},"lookalikes":"C8 radiculopathy; neurogenic thoracic outlet syndrome","q":"upper"},{"id":"ue-m-coracobrachialis","name":"Coracobrachialis","cat":"muscle","tier":"C","source":"Travell & Simons Vol. 1.","note":"Anterior deltoid and front of the upper arm, with an unusually long reach for a small muscle — down the entire posterior arm to the dorsal forearm and hand.","zones":{"deltoid-ant":3,"arm-ant":2,"arm-post":2,"forearm-dors":2,"hand-dors":2},"lookalikes":"","q":"upper"},{"id":"ue-m-biceps","name":"Biceps brachii","cat":"muscle","tier":"C","source":"Travell & Simons Vol. 1.","note":"Anterior shoulder (front of deltoid) and down the front of the arm to the antecubital crease.","zones":{"deltoid-ant":3,"arm-ant":3,"elbow-ant":2,"forearm-volar":1},"lookalikes":"","q":"upper"},{"id":"ue-m-triceps","name":"Triceps brachii","cat":"muscle","tier":"C","source":"Travell & Simons Vol. 1 (multiple distinct trigger point sites).","note":"Posterior shoulder, posterior upper arm and the olecranon/posterior elbow, spilling down the posterior forearm to the dorsum of the hand.","zones":{"arm-post":3,"elbow-post":3,"deltoid-post":2,"forearm-dors":2,"hand-dors":1,"elbow-lat":1,"digits-uln":1},"lookalikes":"","q":"upper"},{"id":"ue-m-brachialis","name":"Brachialis","cat":"muscle","tier":"C","source":"Travell & Simons Vol. 1.","note":"Front of the elbow over the muscle belly, with a distinctive projection to the base and dorsal web space of the THUMB — that thumb referral is the signature.","zones":{"elbow-ant":3,"thenar":3,"web-space":3,"arm-ant":2},"lookalikes":"C6 radiculopathy; de Quervain's; CMC arthritis","q":"upper"},{"id":"ue-m-brachioradialis","name":"Brachioradialis","cat":"muscle","tier":"C","source":"Travell & Simons Vol. 1.","note":"Lateral epicondyle ('tennis elbow' mimic) and down the dorsoradial forearm to the web space between thumb and index finger.","zones":{"elbow-lat":3,"forearm-rad":3,"web-space":3,"thenar":2,"wrist":1},"lookalikes":"Lateral epicondylalgia; radial tunnel syndrome; C6 radiculopathy","q":"upper"},{"id":"ue-m-supinator","name":"Supinator","cat":"muscle","tier":"C","source":"Travell & Simons Vol. 1.","note":"Lateral epicondyle and proximal dorsal forearm — mimics resistant lateral epicondylalgia and radial tunnel syndrome — with spillover to the dorsal thumb web space.","zones":{"elbow-lat":3,"forearm-rad":2,"web-space":2,"thenar":1},"lookalikes":"Lateral epicondylalgia (resistant); PIN/radial tunnel entrapment","q":"upper"},{"id":"ue-m-pronator-teres","name":"Pronator teres","cat":"muscle","tier":"C","source":"Travell & Simons Vol. 1.","note":"Volar proximal forearm and radial wrist, spilling to the radial three digits and thenar region. Can accompany true median nerve paresthesia (pronator teres syndrome).","zones":{"forearm-volar":3,"wrist":3,"thenar":2,"digits-rad":2,"elbow-ant":2,"palm":1},"lookalikes":"Carpal tunnel syndrome; pronator syndrome; C6 radiculopathy","q":"upper"},{"id":"ue-m-wrist-ext","name":"Wrist extensors (ECRL / ECRB / ECU)","cat":"muscle","tier":"C","source":"Travell & Simons Vol. 1.","note":"ECRL/ECRB: lateral epicondyle spilling to the dorsum of the hand and wrist (ECRB into the dorsal middle finger). ECU stays fairly localised to the dorsal-ulnar wrist.","zones":{"elbow-lat":3,"forearm-dors":2,"wrist":3,"hand-dors":2,"digits-rad":1},"lookalikes":"Lateral epicondylalgia; C6–C7 radiculopathy","q":"upper"},{"id":"ue-m-finger-ext","name":"Finger extensors (EDC / EIP)","cat":"muscle","tier":"C","source":"Travell & Simons Vol. 1.","note":"Dorsal forearm and wrist referring into the dorsum of the corresponding finger(s) — a roughly segmental, one-slip-per-finger pattern.","zones":{"forearm-dors":3,"hand-dors":3,"wrist":2,"digits-rad":2,"digits-uln":2},"lookalikes":"","q":"upper"},{"id":"ue-m-wrist-flex","name":"Wrist / finger flexors (FCR, FCU, FDS, FDP)","cat":"muscle","tier":"C","source":"Travell & Simons Vol. 1.","note":"Volar forearm referring to the palm, volar wrist and corresponding fingers — FCU skews ulnar/little finger, FCR skews radial palm. Palmaris longus is distinct: a superficial, hypersensitive 'pins-and-needles' patch in the centre of the palm rather than a deep ache.","zones":{"forearm-volar":3,"forearm-uln":2,"palm":3,"wrist":2,"digits-uln":2,"digits-rad":1},"lookalikes":"Carpal tunnel syndrome; Guyon's canal; C8 radiculopathy","q":"upper"},{"id":"ue-m-adductor-pollicis","name":"Adductor pollicis","cat":"muscle","tier":"C","source":"Travell & Simons Vol. 1.","note":"Base of the thumb, thumb–index web space, centre of the palm and the wrist. Confined to the hand — can convincingly mimic carpal tunnel syndrome.","zones":{"thenar":3,"web-space":3,"palm":2,"wrist":2},"lookalikes":"Carpal tunnel syndrome; CMC arthritis","q":"upper"},{"id":"ue-m-opponens-pollicis","name":"Opponens pollicis","cat":"muscle","tier":"C","source":"Travell & Simons Vol. 1.","note":"Runs the length of the palmar/radial thumb itself, occasionally to the dorsal thumb and volar wrist.","zones":{"thenar":3,"wrist":2,"web-space":1},"lookalikes":"","q":"upper"},{"id":"ue-m-first-dorsal-io","name":"First dorsal interosseous","cat":"muscle","tier":"C","source":"Travell & Simons Vol. 1.","note":"Radial side of the index finger, running its full length to the fingertip, plus the dorsal web space. Frequently mistaken for digital nerve entrapment.","zones":{"digits-rad":3,"web-space":3,"hand-dors":2},"lookalikes":"Digital nerve entrapment; C6/C7 radiculopathy","q":"upper"},{"id":"ue-m-rectus-abd","name":"Rectus abdominis","cat":"muscle","tier":"C","source":"Travell & Simons Vol. 1.","note":"Hallmark feature: upper trigger points refer BILATERALLY across the mid and low back and can mimic epigastric or cardiac pain; lower trigger points refer bilaterally to the low back and sacral region and can produce colicky abdominal pain with GI symptoms.","zones":{"epigastric":3,"lower-abdomen":3,"tl-junction":2,"lumbar":2,"lumbar-midline":2,"thoracic-mid":2,"chest-ant":1},"lookalikes":"Visceral pathology (EXCLUDE FIRST); lumbar facet; discogenic low back pain","q":"upper"},{"id":"ue-m-obliques","name":"External / internal obliques","cat":"muscle","tier":"C","source":"Travell & Simons Vol. 1.","note":"Upper fibres refer to the epigastrium and mimic heartburn; lower fibres refer to the groin and, in men, the testicle/scrotum. A well-known McBurney's-point mimic on the right — sometimes mistaken for appendicitis.","zones":{"epigastric":3,"lower-abdomen":2,"groin":3,"hip-ant":3,"pubic":3,"flank":2,"chest-lat":1},"lookalikes":"Appendicitis (EXCLUDE FIRST); inguinal hernia; hip pathology","q":"upper"},{"id":"ue-m-iliocostalis-thor","name":"Iliocostalis thoracis","cat":"muscle","tier":"C","source":"Travell & Simons Vol. 1.","note":"Segmental paraspinal band at the level of the trigger point that WRAPS AROUND THE CHEST WALL following the rib contours — can mimic cardiac or pleuritic pain.","zones":{"thoracic-mid":3,"flank":2,"chest-lat":2,"chest-ant":2,"interscap":2},"lookalikes":"Cardiac / pleuritic pain (EXCLUDE FIRST); thoracic facet; costotransverse joint","q":"upper"},{"id":"ue-m-iliocostalis-lumb","name":"Iliocostalis lumborum","cat":"muscle","tier":"C","source":"Travell & Simons Vol. 1.","note":"Local low back extending into the buttock; sits more lateral than the longissimus pattern.","zones":{"lumbar":3,"lumbar-midline":3,"si-joint":2,"buttock-upper":2,"buttock-lower":2,"flank":2,"tl-junction":2},"lookalikes":"","q":"upper"},{"id":"ue-m-longissimus","name":"Longissimus thoracis","cat":"muscle","tier":"C","source":"Travell & Simons Vol. 1.","note":"Paraspinal band at the trigger point level — upper points stay local with some radiation toward the scapula; lower points extend into the buttock, generally more MEDIAL than the iliocostalis lumborum pattern.","zones":{"thoracic-mid":3,"tl-junction":3,"lumbar":2,"lumbar-midline":2,"si-joint":2,"buttock-upper":2,"buttock-lower":2,"interscap":1},"lookalikes":"","q":"upper"},{"id":"ue-m-multifidi","name":"Multifidi","cat":"muscle","tier":"C","source":"Travell & Simons Vol. 1.","note":"Very localised deep segmental pain directly over or adjacent to the spinous process at the level involved. Cervical level refers to the occiput; lumbosacral level refers to the buttock and occasionally the posterior thigh, mimicking sciatica.","zones":{"neck-mid":2,"occiput":2,"thoracic-mid":2,"lumbar":3,"lumbar-midline":3,"si-joint":3,"buttock-upper":3,"buttock-lower":3,"tl-junction":2},"lookalikes":"Lumbar radiculopathy; facet joint pain","q":"upper"},{"id":"ue-m-serratus-post-inf","name":"Serratus posterior inferior","cat":"muscle","tier":"C","source":"Travell & Simons Vol. 1.","note":"Localised, persistent ache at the thoracolumbar junction over the muscle itself. One of the more confined trunk patterns — in sharp contrast to serratus posterior superior's long reach into the hand.","zones":{"tl-junction":3,"flank":1},"lookalikes":"","q":"upper"},{"id":"lq-facet-l12","name":"L1–L2 facet joint","cat":"facet","tier":"B","source":"Mooney & Robertson, Clin Orthop 1976 (N=20, 5 volunteers + 15 patients); McCall, Park & O'Brien, Spine 1979 (asymptomatic volunteers); Fukui et al., Clin J Pain 1997 (symptomatic); Marks, Pain 1989.","note":"Upper lumbar facets refer laterally and proximally — flank, iliac crest and lateral hip — rather than down the leg. McCall's volunteer data put the upper levels in the flank and greater trochanter region.","zones":{"lumbar":3,"flank":3,"iliac-crest":2,"tl-junction":2,"troch":1},"lookalikes":"","q":"lower"},{"id":"lq-facet-l23","name":"L2–L3 facet joint","cat":"facet","tier":"B","source":"Mooney & Robertson, Clin Orthop 1976 (N=20, 5 volunteers + 15 patients); McCall, Park & O'Brien, Spine 1979 (asymptomatic volunteers); Fukui et al., Clin J Pain 1997 (symptomatic); Marks, Pain 1989.","note":"Lumbar paraspinal with lateral spread to the iliac crest and trochanter. Level-specific maps overlap heavily — McCall's own conclusion was 'considerable overlap' between levels.","zones":{"lumbar":3,"iliac-crest":3,"flank":2,"troch":2,"buttock-upper":1},"lookalikes":"","q":"lower"},{"id":"lq-facet-l34","name":"L3–L4 facet joint","cat":"facet","tier":"B","source":"Mooney & Robertson, Clin Orthop 1976 (N=20, 5 volunteers + 15 patients); McCall, Park & O'Brien, Spine 1979 (asymptomatic volunteers); Fukui et al., Clin J Pain 1997 (symptomatic); Marks, Pain 1989.","note":"Lumbar paraspinal, iliac crest, upper buttock and greater trochanter, beginning to reach the lateral thigh.","zones":{"lumbar":3,"buttock-upper":3,"iliac-crest":2,"troch":2,"thigh-lat":1,"groin":1},"lookalikes":"","q":"lower"},{"id":"lq-facet-l45","name":"L4–L5 facet joint","cat":"facet","tier":"B","source":"Mooney & Robertson, Clin Orthop 1976 (N=20, 5 volunteers + 15 patients); McCall, Park & O'Brien, Spine 1979 (asymptomatic volunteers); Fukui et al., Clin J Pain 1997 (symptomatic); Marks, Pain 1989.","note":"One of the two most commonly implicated levels. Buttock and trochanteric referral dominate; Marks (1989) attributed most buttock and trochanteric pain to L4–L5.","zones":{"buttock-upper":3,"lumbar":3,"troch":3,"buttock-lower":2,"thigh-post":2,"thigh-lat":2,"si-joint":1},"lookalikes":"","q":"lower"},{"id":"lq-facet-l5s1","name":"L5–S1 facet joint","cat":"facet","tier":"B","source":"Mooney & Robertson, Clin Orthop 1976 (N=20, 5 volunteers + 15 patients); McCall, Park & O'Brien, Spine 1979 (asymptomatic volunteers); Fukui et al., Clin J Pain 1997 (symptomatic); Marks, Pain 1989.","note":"Buttock and posterior thigh. Whether facet pain can reach below the knee is genuinely contested: Mooney & Robertson saw whole-leg pain in 3 of 20, but that is now widely attributed to large-volume saline rupturing the capsule. Windsor's electrical stimulation — a more specific stimulus — produced smaller, more proximal zones.","zones":{"buttock-upper":3,"buttock-lower":3,"thigh-post":3,"lumbar":2,"si-joint":2,"troch":2,"thigh-lat":1},"lookalikes":"SI joint (indistinguishable by pain location alone — DePalma 2011); L5/S1 radiculopathy","q":"lower"},{"id":"lq-disc-l34","name":"L3–L4 intervertebral disc","cat":"disc","tier":"B","source":"Vanharanta / Ohnmeiss provocation discography series; Carragee et al., Spine 2000 (false-positive rates); DePalma et al., PM&R 2011 (midline vs paramidline).","note":"Midline low back pain with anterior/lateral thigh referral. Discography localises the level poorly — overlap between adjacent levels is the norm.","zones":{"lumbar-midline":3,"lumbar":2,"thigh-ant":2,"thigh-lat":1,"groin":1},"lookalikes":"","q":"lower"},{"id":"lq-disc-l45","name":"L4–L5 intervertebral disc","cat":"disc","tier":"B","source":"Vanharanta / Ohnmeiss provocation discography series; Carragee et al., Spine 2000 (false-positive rates); DePalma et al., PM&R 2011 (midline vs paramidline).","note":"Midline low back pain, buttock and posterolateral leg. DePalma 2011: midline pain was present in 95.8% of confirmed discogenic cases versus 15.4% of facet and 12.9% of SI joint cases — the one location finding with real discriminating value.","zones":{"lumbar-midline":3,"lumbar":3,"buttock-upper":2,"thigh-post":2,"thigh-lat":2,"leg-lat":1},"lookalikes":"L5 radiculopathy; lumbar facet (but midline location favours disc)","q":"lower"},{"id":"lq-disc-l5s1","name":"L5–S1 intervertebral disc","cat":"disc","tier":"B","source":"Vanharanta / Ohnmeiss provocation discography series; Carragee et al., Spine 2000 (false-positive rates); DePalma et al., PM&R 2011 (midline vs paramidline).","note":"Midline low back, buttock, posterior thigh and calf. Pain extending below the knee correlates with the grade of annular disruption, not with which level is symptomatic.","zones":{"lumbar-midline":3,"buttock-upper":3,"thigh-post":2,"calf":2,"lumbar":2,"leg-lat":1,"si-joint":1},"lookalikes":"","q":"lower"},{"id":"lq-root-l3","name":"L3 nerve root","cat":"root","tier":"B","source":"Clinical radiculopathy series; ASIA sensory points; Suri et al. 2011 (femoral stretch test).","note":"Anterior and distal thigh to the medial knee. Prone knee bend is the loading test — 70% sensitive and 88% specific for L3 specifically.","zones":{"thigh-ant":3,"knee-med":2,"groin":2,"thigh-med":2,"lumbar":1},"lookalikes":"","q":"lower"},{"id":"lq-root-l4","name":"L4 nerve root","cat":"root","tier":"B","source":"Clinical radiculopathy series; ASIA sensory points.","note":"Medial leg and medial malleolus, with anterior thigh involvement. The transitional root — it feeds both the femoral nerve and the lumbosacral trunk, so it can present like an upper or a lower lumbar lesion.","zones":{"leg-med":3,"ankle-med":3,"knee-med":2,"thigh-ant":2,"lumbar":1,"leg-ant":1},"lookalikes":"","q":"lower"},{"id":"lq-root-l5","name":"L5 nerve root","cat":"root","tier":"B","source":"Clinical radiculopathy series; ASIA sensory points; SLR/slump literature.","note":"Lateral leg, dorsum of foot, great toe and first web space, with buttock and posterolateral thigh referral proximally. The commonest lumbar radiculopathy alongside S1.","zones":{"leg-lat":3,"foot-dorsum":3,"great-toe":3,"thigh-post":2,"buttock-upper":2,"leg-ant":2,"thigh-lat":2,"lumbar":1},"lookalikes":"Common fibular n. at the fibular neck (spares hip abduction and inversion); gluteus minimus TrP","q":"lower"},{"id":"lq-root-s1","name":"S1 nerve root","cat":"root","tier":"B","source":"Clinical radiculopathy series; ASIA sensory points.","note":"Posterior thigh and calf into the lateral foot and lateral malleolus. Achilles reflex loss is the localising sign.","zones":{"calf":3,"ankle-lat":3,"lat-toes":2,"thigh-post":3,"buttock-lower":2,"heel-plantar":2,"buttock-upper":2},"lookalikes":"Piriformis / deep gluteal syndrome; SI joint; hamstring pathology","q":"lower"},{"id":"lq-lig-lumbar-isl","name":"Lumbar &amp; sacral interspinous ligaments","cat":"ligament","tier":"C","source":"Kellgren, Clin Sci 1939; Feinstein et al., JBJS 1954 (as conventionally reported — the level-specific zones could not be verified against the primary tables).","note":"Deep, diffuse, segmentally-organised ache that does NOT follow dermatomes. Upper lumbar levels refer to flank and hip; lower lumbar and sacral levels refer into buttock and posterior thigh, approaching the knee in a minority. Foundational but small-N, non-blinded work.","zones":{"lumbar":3,"buttock-upper":2,"flank":2,"si-joint":2,"thigh-post":2,"iliac-crest":1},"lookalikes":"","q":"lower"},{"id":"lq-joint-sij","name":"Sacroiliac joint","cat":"joint","tier":"B","source":"Zone geometry: Fortin et al., Spine 1994 Part I — 10 ASYMPTOMATIC volunteers (grade-A design). All quoted percentages: Slipman et al., Arch Phys Med Rehabil 2000 — 50 SYMPTOMATIC patients (68 joints; 18 bilateral, 32 unilateral), selected by a single positive intra-articular block.","note":"Graded B, not A: only the zone SHAPE — a consistent 3 × 10 cm area immediately caudal to the PSIS — comes from asymptomatic volunteers. Every percentage below comes from a symptomatic patient series. Slipman: buttock 94%, lower lumbar 72%, lower extremity roughly a quarter to a half (secondary sources report 28% and 50% for the same dataset), groin 14%, upper lumbar 6%. So SI pain CAN go below the knee — 'it stays above the knee' is not a safe rule.","zones":{"si-joint":3,"buttock-upper":3,"lumbar":2,"buttock-lower":2,"thigh-post":2,"groin":1,"calf":1},"lookalikes":"L5–S1 facet (DePalma 2011: paramidline location cannot separate the two); lumbar disc","q":"lower"},{"id":"lq-joint-hip","name":"Hip joint","cat":"joint","tier":"B","source":"Lesher et al., Pain Medicine 2008 — fluoroscopically-guided intra-articular injection with pre-injection pain mapping, N=51 symptomatic patients.","note":"Buttock 71% — more common than groin, which contradicts the classic teaching. Thigh 57%, groin 55%, distal to knee 22%, foot 6%, isolated knee 2%, lower lumbar spine 0%. Fourteen distinct referral patterns were identified: there is no single dominant hip pattern.","zones":{"buttock-upper":3,"groin":3,"thigh-ant":3,"thigh-lat":2,"knee-ant":2,"troch":2,"thigh-med":2,"knee-med":1,"leg-ant":1},"lookalikes":"L2–L4 radiculopathy; SI joint; greater trochanteric pain syndrome. In adolescents with knee pain, always examine the hip — SCFE presents as knee pain in ~15%.","q":"lower"},{"id":"lq-joint-knee","name":"Knee joint (intra-articular)","cat":"joint","tier":"C","source":"Clinical observation; no controlled volunteer referral-mapping study identified.","note":"Largely local, with referral into the anterior thigh and proximal calf. Graded C because — unlike the hip and SI joint — no controlled provocation mapping study was found for the knee.","zones":{"knee-ant":3,"knee-med":2,"knee-lat":2,"thigh-ant":1,"calf":1,"knee-post":1},"lookalikes":"","q":"lower"},{"id":"lq-m-glut-max","name":"Gluteus maximus","cat":"muscle","tier":"C","source":"Travell & Simons, Myofascial Pain and Dysfunction Vol. 2 (Lower Half of Body).","note":"Diffuse ache over the buttock mass. The medial-fibre trigger point near the coccyx mimics coccydynia. Rarely crosses the knee.","zones":{"buttock-upper":3,"buttock-lower":3,"coccyx":2,"sacrum":2,"thigh-post":1},"lookalikes":"Coccydynia; SI joint dysfunction","q":"lower"},{"id":"lq-m-glut-med","name":"Gluteus medius","cat":"muscle","tier":"C","source":"Travell & Simons, Myofascial Pain and Dysfunction Vol. 2 (Lower Half of Body).","note":"Posterior iliac crest, sacrum and the whole buttock — the classic 'low back pain' muscle. Spillover into the posterior thigh and upper calf.","zones":{"iliac-crest":3,"buttock-upper":3,"sacrum":2,"si-joint":2,"buttock-lower":2,"thigh-post":2,"lumbar":2},"lookalikes":"SI joint dysfunction; lumbar facet; L5 radiculopathy","q":"lower"},{"id":"lq-m-glut-min","name":"Gluteus minimus","cat":"muscle","tier":"C","source":"Travell & Simons, Myofascial Pain and Dysfunction Vol. 2 (Lower Half of Body).","note":"THE pseudo-sciatica pattern, and the most convincing non-radicular mimic in the whole atlas. Anterior fibres refer from the lateral buttock down the OUTSIDE of the leg as far as the ankle; posterior fibres run down the back of the buttock and thigh, stopping at the calf. Leg pain to the ankle with no dermatomal, myotomal or reflex change should raise this immediately.","zones":{"buttock-lower":3,"thigh-lat":3,"leg-lat":3,"ankle-lat":2,"buttock-upper":2,"thigh-post":2,"calf":2,"knee-lat":2},"lookalikes":"L5 or S1 radiculopathy — the discriminator is the ABSENCE of reflex, myotome and dermatome findings","q":"lower"},{"id":"lq-m-piriformis","name":"Piriformis","cat":"muscle","tier":"C","source":"Travell & Simons, Myofascial Pain and Dysfunction Vol. 2 (Lower Half of Body).","note":"Over the SI joint, sacrum, buttock and posterior hip, extending into the proximal two-thirds of the posterior thigh. Distinguish the myofascial referral (rarely past the knee) from true piriformis syndrome — sciatic nerve entrapment — which does produce symptoms to the foot.","zones":{"si-joint":3,"buttock-upper":3,"sacrum":2,"buttock-lower":2,"thigh-post":2},"lookalikes":"Deep gluteal syndrome (true nerve entrapment); SI joint; S1 radiculopathy","q":"lower"},{"id":"lq-m-tfl","name":"Tensor fasciae latae","cat":"muscle","tier":"C","source":"Travell & Simons, Myofascial Pain and Dysfunction Vol. 2 (Lower Half of Body).","note":"Anterolateral hip over the greater trochanter and down the lateral thigh along the IT band toward the lateral knee.","zones":{"troch":3,"thigh-lat":3,"hip-ant":2,"knee-lat":1},"lookalikes":"Greater trochanteric pain syndrome; IT band syndrome","q":"lower"},{"id":"lq-m-iliopsoas","name":"Iliopsoas","cat":"muscle","tier":"C","source":"Travell & Simons, Myofascial Pain and Dysfunction Vol. 2 (Lower Half of Body).","note":"A vertical band in the ipsilateral upper lumbar paraspinal region plus anterior groin, spilling into the anterior thigh to the knee. A frequently missed mimic of discogenic back pain.","zones":{"lumbar":3,"groin":3,"thigh-ant":2,"lumbar-midline":1,"hip-ant":2},"lookalikes":"Discogenic low back pain; hip flexor strain; intra-articular hip pathology","q":"lower"},{"id":"lq-m-ql","name":"Quadratus lumborum","cat":"muscle","tier":"C","source":"Travell & Simons, Myofascial Pain and Dysfunction Vol. 2 (Lower Half of Body).","note":"Superficial layer refers along the iliac crest and into the lower buttock and greater trochanter; deep layer concentrates over the SI joint, with spillover to the groin and lower lateral abdomen. One of the most consistently missed sources of 'SI joint' pain.","zones":{"iliac-crest":3,"si-joint":3,"buttock-lower":2,"troch":2,"groin":2,"flank":2,"lower-abdomen":1,"lumbar":2},"lookalikes":"SI joint dysfunction; greater trochanteric pain syndrome; hip pathology","q":"lower"},{"id":"lq-m-rectus-abd-low","name":"Rectus abdominis (lower fibres)","cat":"muscle","tier":"C","source":"Travell & Simons, Myofascial Pain and Dysfunction Vol. 2 (Lower Half of Body).","note":"Refers as a band across the LOW BACK bilaterally, plus sacral and pelvic pain — easily missed because the examination focuses on posterior structures.","zones":{"lumbar":3,"sacrum":2,"lower-abdomen":3,"si-joint":1},"lookalikes":"Mechanical low back pain; visceral/gynaecological pathology (exclude first)","q":"lower"},{"id":"lq-m-add-longus","name":"Adductor longus / brevis","cat":"muscle","tier":"C","source":"Travell & Simons, Myofascial Pain and Dysfunction Vol. 2 (Lower Half of Body).","note":"Deep groin and anteromedial thigh, running down the medial leg to just below the knee.","zones":{"groin":3,"thigh-med":3,"pubic":2,"knee-med":2,"leg-med":1},"lookalikes":"Adductor strain; osteitis pubis; hip labral pathology","q":"lower"},{"id":"lq-m-add-magnus","name":"Adductor magnus","cat":"muscle","tier":"C","source":"Travell & Simons, Myofascial Pain and Dysfunction Vol. 2 (Lower Half of Body).","note":"Ischiocondylar portion refers along the posteromedial thigh to the knee; the proximal/pubic portion produces a deep intrapelvic ache that may be perceived intravaginally or intrarectally.","zones":{"thigh-med":3,"pubic":3,"perineum":2,"knee-med":1,"groin":2},"lookalikes":"Chronic pelvic pain syndromes; adductor strain","q":"lower"},{"id":"lq-m-pectineus","name":"Pectineus","cat":"muscle","tier":"C","source":"Travell & Simons, Myofascial Pain and Dysfunction Vol. 2 (Lower Half of Body).","note":"Sharply localised deep pain in the groin crease with minimal spillover.","zones":{"groin":3,"hip-ant":2,"thigh-med":1},"lookalikes":"Hip labral tear; intra-articular hip pathology; femoroacetabular impingement","q":"lower"},{"id":"lq-m-gracilis","name":"Gracilis","cat":"muscle","tier":"C","source":"Travell & Simons, Myofascial Pain and Dysfunction Vol. 2 (Lower Half of Body).","note":"A diffuse, superficial ache with an itching quality along the medial thigh — distinctively surface-level rather than deep, which separates it from adductor longus.","zones":{"thigh-med":3,"knee-med":1},"lookalikes":"","q":"lower"},{"id":"lq-m-obturator-int","name":"Obturator internus","cat":"muscle","tier":"C","source":"Travell & Simons, Myofascial Pain and Dysfunction Vol. 2 (Lower Half of Body).","note":"Deep pelvic floor, coccyx and posterior vaginal or rectal wall, spilling into the perineum and posterior thigh.","zones":{"perineum":3,"coccyx":3,"buttock-lower":2,"thigh-post":1,"sacrum":1},"lookalikes":"Pudendal neuralgia; levator ani syndrome","q":"lower"},{"id":"lq-m-levator-ani","name":"Levator ani / coccygeus","cat":"muscle","tier":"C","source":"Travell & Simons, Myofascial Pain and Dysfunction Vol. 2 (Lower Half of Body).","note":"Coccyx and lower sacrum — the coccydynia pattern — with buttock referral and a sensation of rectal fullness.","zones":{"coccyx":3,"sacrum":3,"perineum":2,"buttock-lower":2},"lookalikes":"Coccydynia; levator ani syndrome; proctalgia fugax","q":"lower"},{"id":"lq-m-rectus-fem","name":"Rectus femoris","cat":"muscle","tier":"C","source":"Travell & Simons, Myofascial Pain and Dysfunction Vol. 2 (Lower Half of Body).","note":"Deep anterior thigh and, characteristically, the ANTERIOR KNEE — the referral is felt distally even though the trigger point sits proximally near the ASIS.","zones":{"knee-ant":3,"thigh-ant":3,"hip-ant":1},"lookalikes":"Patellofemoral pain syndrome","q":"lower"},{"id":"lq-m-vastus-lat","name":"Vastus lateralis","cat":"muscle","tier":"C","source":"Travell & Simons, Myofascial Pain and Dysfunction Vol. 2 (Lower Half of Body).","note":"The widest referral of the quadriceps group — the entire lateral thigh from hip to knee, with the most distal trigger point referring to the lateral knee and proximal ones to the lateral hip and buttock.","zones":{"thigh-lat":3,"knee-lat":3,"troch":2,"buttock-lower":1},"lookalikes":"IT band syndrome; lateral knee pain; greater trochanteric pain syndrome","q":"lower"},{"id":"lq-m-vastus-med","name":"Vastus medialis","cat":"muscle","tier":"C","source":"Travell & Simons, Myofascial Pain and Dysfunction Vol. 2 (Lower Half of Body).","note":"Medial knee, with the superior (VMO) trigger point referring deep into the knee joint. Classically associated with a reflex-inhibition 'buckling' or giving-way sensation in the ABSENCE of true ligamentous laxity.","zones":{"knee-med":3,"knee-ant":2,"thigh-ant":1},"lookalikes":"Meniscal tear; ACL insufficiency (but ligament tests are negative); patellofemoral pain","q":"lower"},{"id":"lq-m-vastus-int","name":"Vastus intermedius","cat":"muscle","tier":"C","source":"Travell & Simons, Myofascial Pain and Dysfunction Vol. 2 (Lower Half of Body).","note":"Diffuse, poorly localised mid-anterior thigh spreading toward the anterior knee. Often underappreciated in 'unexplained' anterior thigh ache.","zones":{"thigh-ant":3,"knee-ant":2},"lookalikes":"","q":"lower"},{"id":"lq-m-sartorius","name":"Sartorius","cat":"muscle","tier":"C","source":"Travell & Simons, Myofascial Pain and Dysfunction Vol. 2 (Lower Half of Body).","note":"Superficial, TINGLING or paraesthetic in quality — atypical for myofascial pain — running along the muscle from the anterolateral thigh toward the medial knee. The proximal trigger point near the ASIS can mimic meralgia paraesthetica.","zones":{"thigh-ant":3,"thigh-lat":2,"knee-med":2,"hip-ant":1},"lookalikes":"Meralgia paraesthetica (lateral femoral cutaneous n.)","q":"lower"},{"id":"lq-m-biceps-fem","name":"Biceps femoris","cat":"muscle","tier":"C","source":"Travell & Simons, Myofascial Pain and Dysfunction Vol. 2 (Lower Half of Body).","note":"Posterior thigh into the posterior knee and lateral popliteal fossa.","zones":{"thigh-post":3,"knee-post":3,"buttock-lower":1,"calf":1},"lookalikes":"Hamstring strain; S1 radiculopathy","q":"lower"},{"id":"lq-m-medial-hams","name":"Semitendinosus / semimembranosus","cat":"muscle","tier":"C","source":"Travell & Simons, Myofascial Pain and Dysfunction Vol. 2 (Lower Half of Body).","note":"Lower buttock crease and posteromedial thigh down to the popliteal fossa — a distinct laterality from biceps femoris.","zones":{"buttock-lower":3,"thigh-post":3,"knee-post":2,"knee-med":1},"lookalikes":"Proximal hamstring tendinopathy; ischiogluteal bursitis","q":"lower"},{"id":"lq-m-gastroc","name":"Gastrocnemius","cat":"muscle","tier":"C","source":"Travell & Simons, Myofascial Pain and Dysfunction Vol. 2 (Lower Half of Body).","note":"Medial head refers to the medial calf and the instep/arch; lateral head to the posterior knee and lateral calf. Implicated in nocturnal calf cramps.","zones":{"calf":3,"arch":2,"knee-post":2,"leg-med":2,"leg-lat":1},"lookalikes":"DVT (EXCLUDE FIRST in an acutely swollen, warm calf); S1 radiculopathy","q":"lower"},{"id":"lq-m-soleus","name":"Soleus","cat":"muscle","tier":"C","source":"Travell & Simons, Myofascial Pain and Dysfunction Vol. 2 (Lower Half of Body).","note":"The LOWER trigger point near the Achilles refers to the HEEL and plantar surface — a textbook mimic of plantar fasciitis, reproducing weight-bearing heel pain. The upper/lateral trigger point refers, unexpectedly, to the SI JOINT region.","zones":{"heel-plantar":3,"achilles":3,"calf":2,"si-joint":2,"knee-post":1},"lookalikes":"Plantar fasciitis; Achilles tendinopathy; Baxter's neuropathy; SI joint dysfunction","q":"lower"},{"id":"lq-m-popliteus","name":"Popliteus","cat":"muscle","tier":"C","source":"Travell & Simons, Myofascial Pain and Dysfunction Vol. 2 (Lower Half of Body).","note":"Localised posterior knee pain, worse descending stairs or hills and with squatting. Minimal spillover.","zones":{"knee-post":3,"calf":1},"lookalikes":"Popliteus tendinopathy; posterior horn meniscal tear; Baker's cyst","q":"lower"},{"id":"lq-m-tib-ant","name":"Tibialis anterior","cat":"muscle","tier":"C","source":"Travell & Simons, Myofascial Pain and Dysfunction Vol. 2 (Lower Half of Body).","note":"Anterior ankle and the dorsum of the great toe and first ray, with local anterior shin pain.","zones":{"leg-ant":3,"ankle-ant":3,"great-toe":3,"foot-dorsum":2},"lookalikes":"L5 radiculopathy; deep fibular n. entrapment; anterior compartment syndrome","q":"lower"},{"id":"lq-m-tib-post","name":"Tibialis posterior","cat":"muscle","tier":"C","source":"Travell & Simons, Myofascial Pain and Dysfunction Vol. 2 (Lower Half of Body).","note":"Diffuse — Achilles region, the ENTIRE plantar sole, and the posterior calf. The widest plantar distribution of any leg muscle.","zones":{"achilles":3,"forefoot-plant":3,"arch":3,"calf":2,"heel-plantar":2},"lookalikes":"Tarsal tunnel syndrome; tibialis posterior tendinopathy; plantar fasciitis","q":"lower"},{"id":"lq-m-peroneals","name":"Fibularis (peroneus) longus / brevis","cat":"muscle","tier":"C","source":"Travell & Simons, Myofascial Pain and Dysfunction Vol. 2 (Lower Half of Body).","note":"Lateral malleolus and lateral ankle/foot; longus spills to the lateral foot dorsum, brevis to the lateral shin.","zones":{"ankle-lat":3,"leg-lat":3,"foot-dorsum":2,"lat-toes":1},"lookalikes":"Chronic lateral ankle instability; superficial fibular n. entrapment; L5/S1 radiculopathy","q":"lower"},{"id":"lq-m-edl","name":"Extensor digitorum longus","cat":"muscle","tier":"C","source":"Travell & Simons, Myofascial Pain and Dysfunction Vol. 2 (Lower Half of Body).","note":"Dorsum of the foot and anterolateral shin, referring into the dorsal aspect of the middle toes.","zones":{"foot-dorsum":3,"leg-ant":2,"lat-toes":2,"ankle-ant":2},"lookalikes":"","q":"lower"},{"id":"lq-m-fdl","name":"Flexor digitorum longus","cat":"muscle","tier":"C","source":"Travell & Simons, Myofascial Pain and Dysfunction Vol. 2 (Lower Half of Body).","note":"Plantar surface over metatarsal heads 2–5, with a deep calf ache.","zones":{"forefoot-plant":3,"calf":2,"arch":1},"lookalikes":"","q":"lower"},{"id":"lq-m-edb","name":"Extensor digitorum brevis","cat":"muscle","tier":"C","source":"Travell & Simons, Myofascial Pain and Dysfunction Vol. 2 (Lower Half of Body).","note":"Local dorsolateral midfoot pain.","zones":{"foot-dorsum":3,"ankle-ant":1},"lookalikes":"","q":"lower"},{"id":"lq-m-abd-hallucis","name":"Abductor hallucis","cat":"muscle","tier":"C","source":"Travell & Simons, Myofascial Pain and Dysfunction Vol. 2 (Lower Half of Body).","note":"Medial heel and medial plantar foot.","zones":{"heel-plantar":3,"arch":3,"ankle-med":1},"lookalikes":"Tarsal tunnel syndrome; medial-band plantar fasciitis","q":"lower"},{"id":"lq-m-fdb","name":"Flexor digitorum brevis","cat":"muscle","tier":"C","source":"Travell & Simons, Myofascial Pain and Dysfunction Vol. 2 (Lower Half of Body).","note":"Plantar surface under metatarsal heads 2–4 and the central heel.","zones":{"forefoot-plant":3,"heel-plantar":2,"arch":1},"lookalikes":"","q":"lower"},{"id":"lq-m-quad-plantae","name":"Quadratus plantae","cat":"muscle","tier":"C","source":"Travell & Simons, Myofascial Pain and Dysfunction Vol. 2 (Lower Half of Body).","note":"Central plantar heel pad. Distinctively, it mimics plantar fasciitis WITHOUT arch involvement — that absence is the discriminator.","zones":{"heel-plantar":3},"lookalikes":"Plantar fasciitis (but without arch pain); Baxter's neuropathy","q":"lower"},{"id":"lq-m-interossei-foot","name":"Foot interossei","cat":"muscle","tier":"C","source":"Travell & Simons, Myofascial Pain and Dysfunction Vol. 2 (Lower Half of Body).","note":"Local pain in the corresponding toe and web space. Third and fourth web-space trigger points can mimic Morton's neuroma.","zones":{"forefoot-plant":3,"lat-toes":3,"foot-dorsum":2},"lookalikes":"Morton's neuroma; metatarsalgia; stress fracture","q":"lower"}],"cats":{"facet":"Zygapophysial (facet) joint","disc":"Intervertebral disc","root":"Nerve root (dynatome)","ligament":"Spinal ligament","joint":"Peripheral joint / bursa","muscle":"Muscle (myofascial)"},"tiers":{"A":{"label":"A — Experimental map, asymptomatic volunteers","short":"A","desc":"Referral zone produced by controlled provocation (intra-articular distension or injection) in asymptomatic volunteers, then charted. The strongest design available for referred-pain mapping: the zone is caused, not merely observed."},"B":{"label":"B — Provocation mapping in symptomatic patients","short":"B","desc":"Referral zone produced by provocation (discography, intra-articular stimulation, nerve root stimulation) in patients who already have pain. Real experimental data, but the population is sensitised and no asymptomatic control arm exists."},"C":{"label":"C — Clinical observation / expert synthesis","short":"C","desc":"Zone compiled from unblinded clinical case observation rather than controlled provocation. Useful for generating hypotheses; not validated diagnostic anatomy. Most myofascial referral maps sit here."}},"quarters":{"upper":"Upper quarter","lower":"Lower quarter"}};
+DATA.model3d = {"mid":130,"snap":10,"yaw0":24,"pitch0":6,"zoom0":1,"views":[["Front",0,0],["Back",180,0],["Left",-90,0],["Right",90,0],["Head",25,8,2.6,60],["Hands",20,20,2.2,385],["Feet",30,28,2.2,690],["Soles",180,-74,2.0,725]],"plateSets":{"ue":{"ant":[["vertex",52,0,156,42,"torso"],["temporal",52,42,54,22,"torso"],["temporal",154,42,54,22,"torso"],["frontal",106,42,48,28,"torso"],["ear",52,64,54,36,"torso"],["ear",154,64,54,36,"torso"],["face",96,70,68,30,"torso"],["neck-ant",98,96,64,30,"torso"],["shoulder-top",40,112,61,38,"torso"],["shoulder-top",159,112,61,38,"torso"],["chest-ant",100,126,60,88,"torso"],["chest-lat",56,150,44,64,"torso"],["chest-lat",160,150,44,64,"torso"],["epigastric",56,214,148,50,"torso"],["abd-lower",56,264,148,58,"torso"],["groin",56,322,148,58,"torso"],["deltoid-lat",0,130,68,64,"arms"],["deltoid-lat",192,130,68,64,"arms"],["deltoid-ant",68,130,44,64,"arms"],["deltoid-ant",148,130,44,64,"arms"],["arm-ant",0,194,63,60,"arms"],["arm-ant",197,194,63,60,"arms"],["arm-med",63,194,49,60,"arms"],["arm-med",148,194,49,60,"arms"],["elbow-lat",0,254,53,30,"arms"],["elbow-lat",207,254,53,30,"arms"],["elbow-ant",53,254,9,30,"arms"],["elbow-ant",198,254,9,30,"arms"],["elbow-med",62,254,50,30,"arms"],["elbow-med",148,254,50,30,"arms"],["forearm-rad",0,284,47,70,"arms"],["forearm-rad",213,284,47,70,"arms"],["forearm-volar",47,284,9,70,"arms"],["forearm-volar",204,284,9,70,"arms"],["forearm-uln",56,284,56,70,"arms"],["forearm-uln",148,284,56,70,"arms"],["wrist",0,354,112,20,"arms"],["wrist",148,354,112,20,"arms"],["thenar",0,374,38,66,"arms"],["thenar",222,374,38,66,"arms"],["palm",38,374,74,34,"arms"],["palm",148,374,74,34,"arms"],["digits-rad",38,408,16,32,"arms"],["digits-rad",206,408,16,32,"arms"],["digits-uln",54,408,58,32,"arms"],["digits-uln",148,408,58,32,"arms"]],"post":[["vertex",52,0,156,42,"torso"],["temporal",52,42,48,34,"torso"],["temporal",160,42,48,34,"torso"],["occiput",96,42,68,34,"torso"],["suboccipital",96,76,68,22,"torso"],["neck-upper",98,98,64,12,"torso"],["neck-mid",98,110,64,14,"torso"],["neck-lower",98,124,64,22,"torso"],["shoulder-top",40,112,61,36,"torso"],["shoulder-top",159,112,61,36,"torso"],["scap-sup",76,146,26,26,"torso"],["scap-sup",158,146,26,26,"torso"],["interscap",102,146,56,68,"torso"],["scap-border",76,172,26,52,"torso"],["scap-border",158,172,26,52,"torso"],["scap-inf",60,224,42,30,"torso"],["scap-inf",158,224,42,30,"torso"],["thoracic-mid",102,214,56,46,"torso"],["thoracolumbar",102,260,56,48,"torso"],["flank",56,254,46,54,"torso"],["flank",158,254,46,54,"torso"],["lumbar",56,308,148,46,"torso"],["si-buttock",56,354,148,46,"torso"],["deltoid-post",0,130,112,64,"arms"],["deltoid-post",148,130,112,64,"arms"],["arm-post",0,194,112,60,"arms"],["arm-post",148,194,112,60,"arms"],["elbow-lat",0,254,52,30,"arms"],["elbow-lat",208,254,52,30,"arms"],["elbow-post",52,254,60,30,"arms"],["elbow-post",148,254,60,30,"arms"],["forearm-dors",0,284,112,70,"arms"],["forearm-dors",148,284,112,70,"arms"],["wrist",0,354,112,20,"arms"],["wrist",148,354,112,20,"arms"],["web-space",0,374,36,42,"arms"],["web-space",224,374,36,42,"arms"],["hand-dors",36,374,76,66,"arms"],["hand-dors",148,374,76,66,"arms"],["hand-dors",0,416,36,24,"arms"],["hand-dors",224,416,36,24,"arms"]]},"lq":{"ant":[["lower-abdomen",56,0,148,70,"torso"],["groin",84,70,32,74,"torso"],["groin",144,70,32,74,"torso"],["pubic",116,70,28,90,"torso"],["hip-ant",50,70,34,74,"torso"],["hip-ant",176,70,34,74,"torso"],["troch",0,104,96,68,"limbs"],["troch",164,104,96,68,"limbs"],["thigh-lat",0,172,96,104,"limbs"],["thigh-lat",164,172,96,104,"limbs"],["thigh-ant",96,140,17,136,"limbs"],["thigh-ant",147,140,17,136,"limbs"],["thigh-med",113,140,27,136,"limbs"],["thigh-med",120,140,27,136,"limbs"],["knee-lat",0,276,97,38,"limbs"],["knee-lat",163,276,97,38,"limbs"],["knee-ant",97,276,14,38,"limbs"],["knee-ant",149,276,14,38,"limbs"],["knee-med",111,276,29,38,"limbs"],["knee-med",120,276,29,38,"limbs"],["leg-lat",0,314,98,124,"limbs"],["leg-lat",162,314,98,124,"limbs"],["leg-ant",98,314,10,124,"limbs"],["leg-ant",152,314,10,124,"limbs"],["leg-med",108,314,32,124,"limbs"],["leg-med",120,314,32,124,"limbs"],["ankle-lat",0,438,97,28,"limbs"],["ankle-lat",163,438,97,28,"limbs"],["ankle-ant",97,438,12,28,"limbs"],["ankle-ant",151,438,12,28,"limbs"],["ankle-med",109,438,31,28,"limbs"],["ankle-med",120,438,31,28,"limbs"],["foot-dorsum",0,466,140,28,"limbs"],["foot-dorsum",120,466,140,28,"limbs"],["lat-toes",0,494,100,18,"limbs"],["lat-toes",160,494,100,18,"limbs"],["great-toe",100,494,40,18,"limbs"],["great-toe",120,494,40,18,"limbs"],["thigh-ant",96,104,17,36,"limbs"],["thigh-ant",147,104,17,36,"limbs"],["thigh-med",113,104,27,36,"limbs"],["thigh-med",120,104,27,36,"limbs"]],"post":[["thigh-lat",0,142,88,134,"limbs"],["thigh-lat",172,142,88,134,"limbs"],["ankle-lat",0,444,97,30,"limbs"],["ankle-lat",163,444,97,30,"limbs"],["ankle-med",97,444,43,30,"limbs"],["ankle-med",120,444,43,30,"limbs"],["tl-junction",96,0,68,24,"torso"],["lumbar",96,24,22,38,"torso"],["lumbar",142,24,22,38,"torso"],["lumbar-midline",118,24,24,38,"torso"],["flank",40,0,56,62,"torso"],["flank",164,0,56,62,"torso"],["iliac-crest",40,62,180,20,"torso"],["si-joint",102,82,18,38,"torso"],["si-joint",140,82,18,38,"torso"],["sacrum",120,82,20,36,"torso"],["coccyx",120,118,20,20,"torso"],["buttock-upper",40,82,62,38,"torso"],["buttock-upper",158,82,62,38,"torso"],["buttock-lower",40,120,80,40,"torso"],["buttock-lower",140,120,80,40,"torso"],["perineum",108,138,44,22,"torso"],["thigh-post",88,142,52,134,"limbs"],["thigh-post",120,142,52,134,"limbs"],["knee-post",0,276,140,38,"limbs"],["knee-post",120,276,140,38,"limbs"],["calf",0,314,140,92,"limbs"],["calf",120,314,140,92,"limbs"],["achilles",0,406,140,38,"limbs"],["achilles",120,406,140,38,"limbs"],["heel-plantar",0,474,140,38,"limbs"],["heel-plantar",120,474,140,38,"limbs"],["buttock-lower",88,100,52,42,"limbs"],["buttock-lower",120,100,52,42,"limbs"],["troch",0,100,88,42,"limbs"],["troch",172,100,88,42,"limbs"]],"plant":[["lat-toes",30,0,56,46,"limbs"],["lat-toes",174,0,56,46,"limbs"],["great-toe",86,0,34,46,"limbs"],["great-toe",140,0,34,46,"limbs"],["forefoot-plant",30,46,90,46,"limbs"],["forefoot-plant",140,46,90,46,"limbs"],["arch",30,92,90,56,"limbs"],["arch",140,92,90,56,"limbs"],["heel-plantar",30,148,90,62,"limbs"],["heel-plantar",140,148,90,62,"limbs"]],"foot":{"tags":["foot"],"as":"limbs","zHeel":-20,"zToe":40,"plantY":[197,8],"antY":[466,512]}}},"parts":[{"name":"head","tag":"torso","sectors":32,"step":6,"capStart":true,"stations":[{"y":10,"cx":130,"cz":-3,"rx":4,"rz":5},{"y":14,"cx":130,"cz":-3,"rx":17,"rz":20},{"y":26,"cx":130,"cz":-3,"rx":31,"rz":37},{"y":40,"cx":130,"cz":-3,"rx":38,"rz":45},{"y":52,"cx":130,"cz":-3,"rx":40,"rz":46},{"y":64,"cx":130,"cz":-2,"rx":38,"rz":44},{"y":76,"cx":130,"cz":-1,"rx":34,"rz":39},{"y":88,"cx":130,"cz":-1,"rx":26,"rz":29},{"y":96,"cx":130,"cz":-1,"rx":17,"rz":20},{"y":101,"cx":130,"cz":-2,"rx":13,"rz":15}],"bind":[{"set":"ue"}]},{"name":"eye","tag":"torso","mirror":true,"sectors":12,"step":3,"tint":"ink","region":"frontal","bind":[],"capStart":true,"capEnd":true,"stations":[{"y":51,"cx":116,"cz":40,"rx":2,"rz":1.4},{"y":54,"cx":116,"cz":41,"rx":4.6,"rz":2.4},{"y":57,"cx":116,"cz":40,"rx":2,"rz":1.4}]},{"name":"brow","tag":"torso","mirror":true,"sectors":10,"step":3,"tint":"ink","region":"frontal","bind":[],"capStart":true,"capEnd":true,"stations":[{"y":45.5,"cx":116,"cz":39.5,"rx":5,"rz":0.8},{"y":47,"cx":116,"cz":40.5,"rx":7,"rz":1.1},{"y":48.5,"cx":116,"cz":39.5,"rx":5,"rz":0.8}]},{"name":"nose","tag":"torso","axis":"z","sectors":12,"step":4,"region":"face","bind":[],"capEnd":true,"stations":[{"z":36,"cx":130,"cy":63,"rx":5.5,"ry":6.5},{"z":44,"cx":130,"cy":66,"rx":5,"ry":6},{"z":50,"cx":130,"cy":69.5,"rx":3.4,"ry":3.6},{"z":53,"cx":130,"cy":71,"rx":1,"ry":1}]},{"name":"mouth","tag":"torso","sectors":12,"step":2,"tint":"ink","region":"face","bind":[],"capStart":true,"capEnd":true,"stations":[{"y":80.5,"cx":130,"cz":32.5,"rx":7,"rz":1.0},{"y":82,"cx":130,"cz":34.5,"rx":10.5,"rz":1.5},{"y":83.5,"cx":130,"cz":32.5,"rx":7,"rz":1.0}]},{"name":"ear","tag":"torso","mirror":true,"sectors":12,"step":4,"region":"ear","bind":[],"capStart":true,"capEnd":true,"stations":[{"y":51,"cx":89.5,"cz":-4,"rx":2.2,"rz":4},{"y":56,"cx":87.5,"cz":-4,"rx":4.4,"rz":7},{"y":66,"cx":87.5,"cz":-3,"rx":4.4,"rz":7},{"y":72,"cx":89.5,"cz":-3,"rx":2.2,"rz":4}]},{"name":"neck","tag":"torso","sectors":20,"step":6,"stations":[{"y":88,"cx":130,"cz":-4,"rx":15,"rz":14},{"y":100,"cx":130,"cz":-4,"rx":15,"rz":14},{"y":112,"cx":130,"cz":-3,"rx":17,"rz":15},{"y":122,"cx":130,"cz":-2,"rx":21,"rz":17}],"bind":[{"set":"ue"}]},{"name":"torso","tag":"torso","sectors":44,"step":9,"capEnd":true,"stations":[{"y":106,"cx":130,"cz":-2,"rx":17,"rz":15},{"y":118,"cx":130,"cz":-1,"rx":31,"rz":19},{"y":132,"cx":130,"cz":0,"rx":49,"rz":24},{"y":142,"cx":130,"cz":0,"rx":55,"rz":26},{"y":158,"cx":130,"cz":0,"rx":50,"rz":28},{"y":182,"cx":130,"cz":0,"rx":46,"rz":28},{"y":212,"cx":130,"cz":0,"rx":43,"rz":26},{"y":240,"cx":130,"cz":0,"rx":40,"rz":24},{"y":286,"cx":130,"cz":0,"rx":39,"rz":23},{"y":330,"cx":130,"cz":0,"rx":44,"rz":29},{"y":352,"cx":130,"cz":0,"rx":44,"rz":30},{"y":370,"cx":130,"cz":0,"rx":42,"rz":29},{"y":380,"cx":130,"cz":0,"rx":39,"rz":27}],"bind":[{"set":"ue","yMax":260},{"set":"lq","frame":{"sx":0.74,"sy":0.713,"oy":260}}]},{"name":"arm","tag":"arms","mirror":true,"sectors":26,"step":8,"capStart":true,"capEnd":true,"stations":[{"y":124,"cx":86,"cz":-1,"rx":8,"rz":10},{"y":132,"cx":84,"cz":-1,"rx":14,"rz":17},{"y":146,"cx":78,"cz":-1,"rx":17,"rz":19},{"y":160,"cx":72,"cz":-1,"rx":16,"rz":18},{"y":182,"cx":65.5,"cz":-1,"rx":13,"rz":15},{"y":232,"cx":60.5,"cz":-1,"rx":12,"rz":14},{"y":254,"cx":57,"cz":-1,"rx":12,"rz":14},{"y":282,"cx":54.5,"cz":0,"rx":11.5,"rz":12.5},{"y":330,"cx":49,"cz":1,"rx":12,"rz":11},{"y":354,"cx":45.5,"cz":2,"rx":11,"rz":8.5},{"y":368,"cx":42,"cz":2,"rx":16,"rz":7},{"y":382,"cx":40,"cz":2,"rx":22,"rz":6.5},{"y":398,"cx":40,"cz":2,"rx":21,"rz":6},{"y":412,"cx":43,"cz":2,"rx":15,"rz":5},{"y":424,"cx":46,"cz":2,"rx":7,"rz":4}],"bind":[{"set":"ue"}]},{"name":"leg","tag":"limbs","mirror":true,"sectors":26,"step":9,"stations":[{"y":92,"cx":100,"cz":0,"rx":23,"rz":25},{"y":104,"cx":98.5,"cz":0,"rx":26,"rz":27},{"y":152,"cx":99,"cz":0,"rx":25,"rz":26},{"y":206,"cx":99.5,"cz":0,"rx":20.5,"rz":22},{"y":258,"cx":100.5,"cz":0,"rx":16.5,"rz":18},{"y":286,"cx":101,"cz":0,"rx":14,"rz":15.5},{"y":316,"cx":100.5,"cz":0,"rx":12.5,"rz":15},{"y":362,"cx":99,"cz":-1,"rx":12,"rz":14},{"y":406,"cx":98,"cz":-1,"rx":11,"rz":12},{"y":440,"cx":98,"cz":0,"rx":12,"rz":12},{"y":478,"cx":98,"cz":3,"rx":11,"rz":12}],"frame":{"sx":0.8,"sy":1.0,"oy":215},"bind":[{"set":"lq","frame":{"sx":0.8,"sy":1.0,"oy":215}}]},{"name":"foot","tag":"foot","mirror":true,"axis":"z","sectors":20,"step":4,"capStart":true,"capEnd":true,"stations":[{"z":-20,"cx":98,"cy":491,"rx":0.6,"ry":0.6},{"z":-18,"cx":98,"cy":490,"rx":8,"ry":8},{"z":-12,"cx":98,"cy":489,"rx":13,"ry":12},{"z":0,"cx":98,"cy":488,"rx":15,"ry":13},{"z":14,"cx":98,"cy":490,"rx":17,"ry":11},{"z":26,"cx":98,"cy":494,"rx":17,"ry":8},{"z":36,"cx":98,"cy":497,"rx":14,"ry":5},{"z":40,"cx":98,"cy":499,"rx":6,"ry":2.5}],"frame":{"sx":0.8,"sy":1.0,"oy":215},"bind":[{"set":"lq","frame":{"sx":0.8,"sy":1.0,"oy":215}}]}]};
+const R = DATA.regions, ST = DATA.structures, CATS = DATA.cats, TIERS = DATA.tiers;
+
+// density: how many structures refer to each region (weighted by intensity)
+const DENSITY = {};
+Object.keys(R).forEach(k => DENSITY[k] = 0);
+ST.forEach(s => Object.keys(s.zones).forEach(z => DENSITY[z] += 1));
+const DMAX = Math.max(...Object.values(DENSITY));
+// rank-band the density so the default plate actually discriminates:
+// hottest third = 3, middle third = 2, remainder with any referral = 1
+const DENSITY_BAND = (() => {
+  const live = Object.keys(DENSITY).filter(k => DENSITY[k] > 0)
+                     .sort((a,b) => DENSITY[b] - DENSITY[a]);
+  const band = {};
+  Object.keys(DENSITY).forEach(k => band[k] = 0);
+  live.forEach((k,i) => { band[k] = i < live.length/3 ? 3 : i < 2*live.length/3 ? 2 : 1; });
+  return band;
+})();
+
+let mode = 'density';        // 'density' | 'structure' | 'region'
+let activeStruct = null;
+let activeRegion = null;
+let filterCats = new Set();
+let filterTiers = new Set();
+let filterQ = new Set();
+let query = '';
+let B3D = null;   // 3-D model, created on first use
+
+const $ = id => document.getElementById(id);
+const rects = Array.from(document.querySelectorAll('.rg'));
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+/* ---------------- painting ---------------- */
+function paint(){
+  let map = {}, capt = '';
+  if (mode === 'structure' && activeStruct){
+    map = activeStruct.zones;
+    capt = 'Referral intensity';
+  } else if (mode === 'region' && activeRegion){
+    map = {};
+    matching().forEach(s => { if (s.zones[activeRegion]) map[activeRegion] = 3; });
+    capt = 'Selected zone';
+  } else {
+    map = DENSITY_BAND;
+    capt = 'Referral density';
+  }
+  rects.forEach(el => {
+    const v = map[el.dataset.r] || 0;
+    el.classList.remove('h1','h2','h3','picked');
+    if (v) el.classList.add('h' + v);
+    if (mode === 'region' && el.dataset.r === activeRegion) el.classList.add('picked');
+  });
+  if (B3D) B3D.setHeat(map, mode === 'region' ? activeRegion : null);
+  renderLegend(capt);
+  renderPlateMode();
+}
+
+function renderLegend(capt){
+  if (mode === 'region'){
+    // the plate is showing one picked zone, not a ramp — the ramp lives in the list
+    $('legend').innerHTML =
+      '<span class="cap"><b>Zone selected</b></span>' +
+      '<span class="lbl">structures at right, ranked by referral intensity then evidence grade</span>';
+    return;
+  }
+  const labels = mode === 'density' ? ['few','several','many'] : ['spillover','common','primary'];
+  $('legend').innerHTML =
+    '<span class="cap"><b>' + esc(capt) + '</b></span>' +
+    '<span class="swatches">' +
+      '<span class="sw" style="background:var(--heat-1)"></span>' +
+      '<span class="sw" style="background:var(--heat-2)"></span>' +
+      '<span class="sw" style="background:var(--heat-3)"></span>' +
+    '</span>' +
+    '<span class="lbl">' + labels.join(' &nbsp;·&nbsp; ') + '</span>';
+}
+
+function renderPlateMode(){
+  const el = $('plateMode');
+  if (mode === 'structure' && activeStruct){
+    el.innerHTML = 'Showing <b>' + esc(activeStruct.name) + '</b> — darkest zones are its primary referral area.';
+  } else if (mode === 'region' && activeRegion){
+    el.innerHTML = 'Showing every structure that refers to <b>' + esc(R[activeRegion]) + '</b>.';
+  } else {
+    el.innerHTML = '<b>Referral crossroads.</b> Colour shows how many of the ' + ST.length +
+      ' structures (both quarters) refer pain into each zone — the hottest areas are where a differential is widest. Drag to rotate.';
+  }
+}
+
+/* ---------------- filtering ---------------- */
+function matching(){
+  const q = query.trim().toLowerCase();
+  return ST.filter(s => {
+    if (filterCats.size && !filterCats.has(s.cat)) return false;
+    if (filterTiers.size && !filterTiers.has(s.tier)) return false;
+    if (filterQ.size && !filterQ.has(s.q)) return false;
+    if (!q) return true;
+    const hay = (s.name + ' ' + s.note + ' ' + s.source + ' ' + s.lookalikes + ' ' +
+      Object.keys(s.zones).map(z => R[z]).join(' ')).toLowerCase();
+    return hay.includes(q);
+  });
+}
+
+/* ---------------- rail ---------------- */
+function renderRail(){
+  const body = $('railBody');
+  if (mode === 'structure' && activeStruct){ renderDetail(activeStruct); return; }
+
+  let list, title, sub;
+  if (mode === 'region' && activeRegion){
+    list = matching().filter(s => s.zones[activeRegion])
+      .sort((a,b) => (b.zones[activeRegion] - a.zones[activeRegion]) ||
+                     (a.tier < b.tier ? -1 : a.tier > b.tier ? 1 : 0) ||
+                     a.name.localeCompare(b.name));
+    title = R[activeRegion];
+    sub = list.length + ' structure' + (list.length===1?'':'s') + ' refer here';
+  } else {
+    list = matching().sort((a,b) => a.cat.localeCompare(b.cat) || a.name.localeCompare(b.name));
+    title = 'Structures';
+    sub = list.length + ' of ' + ST.length;
+  }
+  $('railTitle').textContent = title;
+  $('railCount').textContent = sub;
+
+  if (!list.length){ body.innerHTML = '<div class="empty">Nothing matches those filters.</div>'; return; }
+
+  const back = (mode === 'region')
+    ? '<div style="padding:11px 16px 0"><button class="backbtn" data-back="1">← All structures</button></div>' : '';
+
+  body.innerHTML = back + '<ul class="slist">' + list.map(s => {
+    const i = activeRegion && mode==='region' ? s.zones[activeRegion] : null;
+    const iLbl = {3:'primary',2:'common',1:'spillover'}[i];
+    return '<li><button class="srow" data-s="' + s.id + '">' +
+      '<span class="nm">' + esc(s.name) +
+        '<br><span class="catdot">' + esc(DATA.quarters[s.q]) + ' · ' + esc(CATS[s.cat]) + '</span></span>' +
+      '<span class="meta">' +
+        (i ? '<span class="intens i' + i + '">' + iLbl + '</span>' : '') +
+        '<span class="tier t' + s.tier + '" title="Evidence grade ' + s.tier + '">' + s.tier + '</span>' +
+      '</span></button></li>';
+  }).join('') + '</ul>';
+}
+
+function renderDetail(s){
+  const zones = Object.entries(s.zones).sort((a,b) => b[1]-a[1]);
+  const zl = zones.map(([z,i]) =>
+    '<li><span class="zbar i' + i + '"></span><span>' + esc(R[z]) +
+    ' <span class="catdot">' + {3:'primary',2:'common',1:'spillover'}[i] + '</span></span></li>').join('');
+  $('railTitle').textContent = 'Structure detail';
+  $('railCount').textContent = TIERS[s.tier].short + ' grade';
+  $('railBody').innerHTML =
+    '<div class="detail">' +
+      '<button class="backbtn" data-back="1">← All structures</button>' +
+      '<h3>' + esc(s.name) + '</h3>' +
+      '<div class="dmeta">' +
+        '<span class="badge">' + esc(DATA.quarters[s.q]) + '</span>' +
+        '<span class="badge">' + esc(CATS[s.cat]) + '</span>' +
+        '<span class="tier t' + s.tier + '">' + s.tier + '</span>' +
+        '<span class="badge">' + esc(TIERS[s.tier].label) + '</span>' +
+      '</div>' +
+      '<div class="dblock"><span class="k">Referral zones</span><ul class="zlist">' + zl + '</ul></div>' +
+      '<div class="dblock"><span class="k">Clinical note</span><span class="v">' + esc(s.note) + '</span></div>' +
+      (s.lookalikes ? '<div class="warnbox"><b>Differentiate from:</b> ' + esc(s.lookalikes) + '</div>' : '') +
+      '<div class="dblock"><span class="k">Source</span><span class="v soft">' + esc(s.source) + '</span></div>' +
+    '</div>';
+}
+
+/* ---------------- chips ---------------- */
+function renderChips(){
+  $('qChips').innerHTML = Object.entries(DATA.quarters).map(([k,v]) =>
+    '<button class="chip' + (filterQ.has(k)?' on':'') + '" data-q="' + k + '">' + esc(v) + '</button>').join('');
+  $('catChips').innerHTML = Object.entries(CATS).map(([k,v]) =>
+    '<button class="chip' + (filterCats.has(k)?' on':'') + '" data-cat="' + k + '">' + esc(v) + '</button>').join('');
+  $('tierChips').innerHTML = ['A','B','C'].map(t =>
+    '<button class="chip' + (filterTiers.has(t)?' on':'') + '" data-tier="' + t + '">Grade ' + t + '</button>').join('');
+}
+
+/* ---------------- static sections ---------------- */
+function renderTierGrid(){
+  $('tierGrid').innerHTML = ['A','B','C'].map(t =>
+    '<div class="tiercard"><div class="th"><span class="tier t' + t + '">' + t + '</span>' +
+    '<h3>' + esc(TIERS[t].label.split('—')[1].trim()) + '</h3></div>' +
+    '<p>' + esc(TIERS[t].desc) + '</p></div>').join('');
+}
+
+function renderTable(){
+  $('tbody').innerHTML = ST.map(s => {
+    const z = Object.entries(s.zones).sort((a,b)=>b[1]-a[1])
+      .map(([k,v]) => esc(R[k]) + ' (' + v + ')').join('; ');
+    return '<tr><td><b>' + esc(s.name) + '</b></td><td class="soft">' + esc(DATA.quarters[s.q]) + ' · ' + esc(CATS[s.cat]) +
+      '</td><td><span class="tier t' + s.tier + '">' + s.tier + '</span></td><td class="soft">' + z +
+      '</td><td class="soft">' + esc(s.note) + '</td></tr>';
+  }).join('');
+}
+
+/* ---------------- events ---------------- */
+document.addEventListener('click', e => {
+  const back = e.target.closest('[data-back]');
+  if (back){ mode='density'; activeStruct=null; activeRegion=null; paint(); renderRail(); return; }
+  const srow = e.target.closest('[data-s]');
+  if (srow){
+    activeStruct = ST.find(x => x.id === srow.dataset.s);
+    activeRegion = null; mode = 'structure'; paint(); renderRail();
+    document.querySelector('.plate-wrap').scrollIntoView({block:'nearest', behavior:'smooth'});
+    return;
+  }
+  const rg = e.target.closest('.rg');
+  if (rg){
+    if (mode==='region' && activeRegion===rg.dataset.r){ mode='density'; activeRegion=null; }
+    else { activeRegion = rg.dataset.r; activeStruct=null; mode='region'; }
+    paint(); renderRail(); return;
+  }
+  const cat = e.target.closest('[data-cat]');
+  if (cat){
+    const k = cat.dataset.cat;
+    filterCats.has(k) ? filterCats.delete(k) : filterCats.add(k);
+    renderChips(); renderRail(); if(mode==='region') paint(); return;
+  }
+  const qc = e.target.closest('[data-q]');
+  if (qc){
+    const k = qc.dataset.q;
+    filterQ.has(k) ? filterQ.delete(k) : filterQ.add(k);
+    renderChips(); renderRail(); if(mode==='region') paint(); return;
+  }
+  const tier = e.target.closest('[data-tier]');
+  if (tier){
+    const k = tier.dataset.tier;
+    filterTiers.has(k) ? filterTiers.delete(k) : filterTiers.add(k);
+    renderChips(); renderRail(); if(mode==='region') paint(); return;
+  }
+});
+
+$('q').addEventListener('input', e => { query = e.target.value; renderRail(); });
+$('resetBtn').addEventListener('click', () => {
+  mode='density'; activeStruct=null; activeRegion=null;
+  filterCats.clear(); filterTiers.clear(); filterQ.clear(); query=''; $('q').value='';
+  renderChips(); paint(); renderRail();
+});
+$('tableBtn').addEventListener('click', e => {
+  const tv = $('tableView'); tv.classList.toggle('on');
+  e.currentTarget.classList.toggle('on', tv.classList.contains('on'));
+  if (tv.classList.contains('on')) tv.scrollIntoView({behavior:'smooth', block:'start'});
+});
+
+/* tooltip — shared by the SVG plates and the 3-D model */
+const tip = $('tip');
+function tipText(rid){
+  let extra;
+  if (mode === 'structure' && activeStruct){
+    const i = activeStruct.zones[rid];
+    extra = i ? {3:'Primary zone',2:'Common referral',1:'Spillover'}[i] : 'Not a referral zone';
+  } else {
+    extra = DENSITY[rid] + ' structure' + (DENSITY[rid]===1?'':'s') + ' refer here';
+  }
+  return '<span class="tt">' + esc(extra) + '</span>' + esc(R[rid]);
+}
+function placeTip(cx, cy){
+  const pad = 14;
+  let x = cx + pad, y = cy + pad;
+  if (x + 250 > window.innerWidth) x = cx - 250 - pad;
+  if (y + 60 > window.innerHeight) y = cy - 60;
+  tip.style.left = x + 'px'; tip.style.top = y + 'px';
+}
+function hideTip(){ tip.classList.remove('on'); rects.forEach(x => x.classList.remove('hovered')); }
+rects.forEach(el => {
+  el.addEventListener('mouseenter', () => {
+    document.querySelectorAll('.rg.hovered').forEach(x => x.classList.remove('hovered'));
+    rects.filter(x => x.dataset.r === el.dataset.r).forEach(x => x.classList.add('hovered'));
+    const rid = el.dataset.r;
+    let extra;
+    if (mode === 'structure' && activeStruct){
+      const i = activeStruct.zones[rid];
+      extra = i ? {3:'Primary zone',2:'Common referral',1:'Spillover'}[i] : 'Not a referral zone';
+    } else {
+      extra = DENSITY[rid] + ' structure' + (DENSITY[rid]===1?'':'s') + ' refer here';
+    }
+    tip.innerHTML = '<span class="tt">' + esc(extra) + '</span>' + esc(R[rid]);
+    tip.classList.add('on');
+  });
+  el.addEventListener('mousemove', ev => {
+    const pad = 14;
+    let x = ev.clientX + pad, y = ev.clientY + pad;
+    if (x + 250 > window.innerWidth) x = ev.clientX - 250 - pad;
+    if (y + 60 > window.innerHeight) y = ev.clientY - 60;
+    tip.style.left = x + 'px'; tip.style.top = y + 'px';
+  });
+  el.addEventListener('mouseleave', () => {
+    tip.classList.remove('on');
+    rects.forEach(x => x.classList.remove('hovered'));
+  });
+});
+
+renderChips(); renderTierGrid(); renderTable(); paint(); renderRail();
+
+/* ---------------- 3-D model ---------------- */
+const plateWrap = document.querySelector('.plate-wrap');
+function setPlateView(model, persist){
+  plateWrap.classList.toggle('model', model);
+  $('viewPlates').setAttribute('aria-pressed', String(!model));
+  $('viewModel').setAttribute('aria-pressed', String(model));
+  if (model){
+    if (!B3D && window.Body3D){
+      B3D = new Body3D($('model3d'), DATA.model3d, {
+        label: 'Rotatable 3-D body heat map — drag to rotate, scroll to zoom, click a zone to select it',
+        onHover: (rid, x, y) => {
+          if (!rid){ hideTip(); return; }
+          tip.innerHTML = tipText(rid); placeTip(x, y); tip.classList.add('on');
+        },
+        onPick: (rid) => {
+          if (!rid) return;
+          if (mode==='region' && activeRegion===rid){ mode='density'; activeRegion=null; }
+          else { activeRegion = rid; activeStruct=null; mode='region'; }
+          paint(); renderRail(); tip.innerHTML = tipText(rid);
+        }
+      });
+      paint();
+    } else if (B3D) B3D.redraw();
+  } else hideTip();
+  if (persist){ try { localStorage.setItem('atlas-plate-view', model ? 'model' : 'plates'); } catch (e) {} }
+}
+$('viewPlates').addEventListener('click', () => setPlateView(false, true));
+$('viewModel').addEventListener('click', () => setPlateView(true, true));
+(function(){
+  let saved = null;
+  try { saved = localStorage.getItem('atlas-plate-view'); } catch (e) {}
+  setPlateView(saved !== 'plates', false);
+})();
+</script>
+</body>
+</html>

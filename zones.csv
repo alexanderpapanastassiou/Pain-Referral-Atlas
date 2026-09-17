@@ -1,0 +1,80 @@
+zone_id,zone,structures_referring_here
+vertex,Vertex / top of head,6
+frontal,Frontal / supraorbital / retro-orbital,5
+temporal,Temporal / side of head,5
+ear,Ear / retromastoid,4
+face,Face / cheek / jaw,4
+occiput,Occiput,11
+suboccipital,Suboccipital,7
+neck-ant,Anterior neck / throat,2
+neck-upper,Upper posterior neck,8
+neck-mid,Mid posterior neck,6
+neck-lower,Lower posterior neck,20
+shoulder-top,Top of shoulder / suprascapular,19
+scap-sup,Superior angle of scapula,11
+interscap,Interscapular / upper thoracic paraspinal,20
+scap-border,Vertebral border of scapula,12
+scap-inf,Inferior angle of scapula,5
+chest-ant,Anterior chest / precordial / breast,10
+chest-lat,Lateral chest wall / axillary line,4
+epigastric,Epigastric / upper abdomen,2
+thoracic-mid,Mid thoracic paraspinal (T5–T8),10
+flank,Flank / lateral trunk,11
+deltoid-ant,Anterior deltoid / anterior shoulder,12
+deltoid-lat,Lateral deltoid / lateral shoulder,7
+deltoid-post,Posterior deltoid / posterior shoulder,8
+arm-ant,Anterior / lateral upper arm,13
+arm-med,Medial upper arm,5
+arm-post,Posterior upper arm,8
+elbow-lat,Lateral epicondyle / lateral elbow,5
+elbow-ant,Antecubital / anterior elbow,3
+elbow-med,Medial epicondyle / medial elbow,3
+elbow-post,Olecranon / posterior elbow,3
+forearm-rad,Dorsoradial forearm,7
+forearm-volar,Volar forearm,3
+forearm-uln,Ulnar forearm,7
+forearm-dors,Dorsal forearm,5
+wrist,Wrist,9
+thenar,Thumb / thenar eminence,8
+palm,Palm,3
+digits-rad,"Radial digits (index, middle)",10
+digits-uln,"Ulnar digits (ring, little)",10
+hand-dors,Dorsum of hand,7
+web-space,Thumb–index web space,6
+tl-junction,Thoracolumbar junction,8
+lumbar,Lumbar paraspinal,22
+lumbar-midline,Lumbar midline,9
+iliac-crest,Iliac crest,6
+si-joint,Sacroiliac joint region,13
+sacrum,Sacrum,6
+coccyx,Coccyx,3
+buttock-upper,Upper buttock,18
+buttock-lower,Lower buttock / gluteal fold,17
+perineum,Perineum / pelvic floor,3
+lower-abdomen,Lower abdomen,4
+groin,Groin / inguinal,11
+pubic,Pubic / adductor origin,3
+troch,Greater trochanter / lateral hip,9
+hip-ant,Anterior hip,6
+thigh-ant,Anterior thigh,10
+thigh-med,Medial thigh,6
+thigh-lat,Lateral thigh,11
+thigh-post,Posterior thigh,15
+knee-ant,Anterior knee / patella,5
+knee-med,Medial knee,10
+knee-lat,Lateral knee,4
+knee-post,Posterior knee / popliteal fossa,6
+leg-ant,Anterior shin,5
+leg-lat,Lateral leg,6
+leg-med,Medial leg,3
+calf,Posterior calf,11
+achilles,Achilles region,2
+ankle-ant,Anterior ankle,3
+ankle-med,Medial malleolus,2
+ankle-lat,Lateral malleolus,3
+heel-plantar,Plantar heel,6
+arch,Medial arch,5
+forefoot-plant,Plantar forefoot / metatarsal heads,4
+foot-dorsum,Dorsum of foot,6
+great-toe,Great toe / first web space,2
+lat-toes,Lateral toes,4
